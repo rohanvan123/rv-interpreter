@@ -24,6 +24,20 @@ enum TokenType {
     LEFT_PAREN,
     RIGHT_PAREN,
     PLUS,
+    TIMES,
+    MINUS,
+    DIVIDES,
+    MOD,
+    RBRACE,
+    LBRACE,
+    GT,
+    LT,
+
+    // Two Characters
+    NEQ,
+    GEQ,
+    LEQ,
+    EQUALITY,
 
     // Literals
     IDENTIFIER,
@@ -31,12 +45,14 @@ enum TokenType {
     STRING,
 
     // Key Words
+    TRUE,
+    FALSE,
     PRINT,
     LET,
     WHILE,
     IF,
-    THEN,
     ELSE,
+    FUNCTION,
     END_OF_FILE
 };
 
@@ -73,10 +89,31 @@ std::string token_to_string(Token token) {
         case RIGHT_PAREN: return "RIGHT_PAREN";
         case LEFT_PAREN: return "LEFT_PAREN";
         case PLUS: return "PLUS";
+        case MINUS: return "MINUS";
+        case TIMES: return "TIMES";
+        case DIVIDES: return "DIVIDES";
+        case MOD: return "MOD";
+        case LBRACE: return "LBRACE";
+        case RBRACE: return "RBRACE";
+        case GT: return "GT";
+        case LT: return "LT";
+
+        case NEQ: return "NEQ";
+        case LEQ: return "LEQ";
+        case GEQ: return "GEQ";
+        case EQUALITY: return "EQUALITY";
+
+        case TRUE: return "BOOL true";
+        case FALSE: return "BOOL false";
+
         case IDENTIFIER: return "IDENT " + token.get_string();
         case INTEGER: return "INT " + token.get_string();
         case PRINT: return "PRINT";
         case LET: return "LET";
+        case WHILE: return "WHILE";
+        case IF: return "IF";
+        case ELSE: return "ELSE";
+        case FUNCTION: return "FUNCTION";
         case END_OF_FILE: return "EOF";
         default: return "UNIDENTIFIED TOKEN " + token.get_string();
     }
@@ -104,7 +141,6 @@ class Lexer {
                 if (isspace(source[current])) {
                     current += 1;
                     start += 1;
-
                 } else if (source[current] == '\n') {
                     current += 1;
                     start += 1;
@@ -157,15 +193,33 @@ class Lexer {
         std::map<char, TokenType> single_chars = {
             {';', SEMI},
             {'=', EQUALS},
-            {'(', RIGHT_PAREN},
-            {')', LEFT_PAREN},
-            {'+', PLUS} 
+            {'(', LEFT_PAREN},
+            {')', RIGHT_PAREN},
+            {'+', PLUS},
+            {'*', TIMES},
+            {'-', MINUS},
+            {'/', DIVIDES},
+            {'%', MOD},
+            {'<', LT},
+            {'>', GT},
+            {'{', LBRACE},
+            {'}', RBRACE}
+
         };
 
         std::map<std::string, TokenType> keyword_tokens = {
             {"let", LET},
             {"while", WHILE},
             {"print", PRINT},
+            {"<=", LEQ},
+            {">=", GEQ},
+            {"!=", NEQ},
+            {"==", EQUALITY},
+            {"true", TRUE},
+            {"false", FALSE},
+            {"if", IF},
+            {"else", ELSE},
+            {"function", FUNCTION},
         };
 
         std::vector<Token> tokens;

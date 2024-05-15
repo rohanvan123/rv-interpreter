@@ -32,12 +32,15 @@ enum TokenType {
     LBRACE,
     GT,
     LT,
+    COMMA,
 
     // Two Characters
     NEQ,
     GEQ,
     LEQ,
     EQUALITY,
+    AND,
+    OR,
 
     // Literals
     IDENTIFIER,
@@ -97,11 +100,14 @@ std::string token_to_string(Token token) {
         case RBRACE: return "RBRACE";
         case GT: return "GT";
         case LT: return "LT";
+        case COMMA: return "COMMA";
 
         case NEQ: return "NEQ";
         case LEQ: return "LEQ";
         case GEQ: return "GEQ";
         case EQUALITY: return "EQUALITY";
+        case AND: return "AND";
+        case OR: return "OR";
 
         case TRUE: return "BOOL true";
         case FALSE: return "BOOL false";
@@ -203,7 +209,8 @@ class Lexer {
             {'<', LT},
             {'>', GT},
             {'{', LBRACE},
-            {'}', RBRACE}
+            {'}', RBRACE},
+            {',', COMMA},
 
         };
 
@@ -215,6 +222,8 @@ class Lexer {
             {">=", GEQ},
             {"!=", NEQ},
             {"==", EQUALITY},
+            {"&&", AND},
+            {"||", OR},
             {"true", TRUE},
             {"false", FALSE},
             {"if", IF},
@@ -229,25 +238,25 @@ class Lexer {
         int line;
 };
 
-int main(int argc, char *argv[]) {
-    // std::cout << "test" << std::endl;
-    std::string input_str;
-    std::ifstream program_file (argv[1]);
-    // std::string buffer(std::istream_iterator<char>(program_file), std::istream_iterator<char>());
+// int main(int argc, char *argv[]) {
+//     // std::cout << "test" << std::endl;
+//     std::string input_str;
+//     std::ifstream program_file (argv[1]);
+//     // std::string buffer(std::istream_iterator<char>(program_file), std::istream_iterator<char>());
     
-    std::string buffer;
-    std::string line;
-    while (std::getline(program_file, line)) {
-        buffer += line + "\n"; // Append each line to the buffer with a newline character
-    }
+//     std::string buffer;
+//     std::string line;
+//     while (std::getline(program_file, line)) {
+//         buffer += line + "\n"; // Append each line to the buffer with a newline character
+//     }
     
-    // std::cout << buffer << std::endl;
-    Lexer lex(buffer);
-    std::vector<Token> tokens = lex.generate_tokens();
-    std::cout << "[";
-    for (size_t i = 0; i < tokens.size() - 1; i++) {
-        std::cout << token_to_string(tokens[i]) << ", ";
-    }
-    std::cout << token_to_string(tokens[tokens.size() - 1]) << "]" << std::endl;
-    return 0;
-}
+//     // std::cout << buffer << std::endl;
+//     Lexer lex(buffer);
+//     std::vector<Token> tokens = lex.generate_tokens();
+//     std::cout << "[";
+//     for (size_t i = 0; i < tokens.size() - 1; i++) {
+//         std::cout << token_to_string(tokens[i]) << ", ";
+//     }
+//     std::cout << token_to_string(tokens[tokens.size() - 1]) << "]" << std::endl;
+//     return 0;
+// }

@@ -150,8 +150,8 @@ int main(int argc, char *argv[]) {
         Parser parser(sequence[i]);
         Expression * abstract_syntax_tree = parser.parse();
         expressions.push_back(abstract_syntax_tree);
-        // std::string exp_str = string_of_expression(abstract_syntax_tree);
-        // std::cout << exp_str << std::endl;
+        std::string exp_str = string_of_expression(abstract_syntax_tree);
+        std::cout << exp_str << std::endl;
     }
 
     Interpreter inter;

@@ -44,6 +44,9 @@ class Parser {
                 advance();
                 Expression * right = comparison();
                 return new AssignmentExpression(var.get_string(), right);
+            } else if (match(1, IF)) {
+                Expression * if_exp = if_expression();
+                return if_exp;
             }
             return comparison();
         }
@@ -58,8 +61,10 @@ class Parser {
                 switch (op.get_type()) {
                     case GT: left = new BinaryExpression(BinaryOperator::GtOp, left, right); break;
                     case GEQ: left =  new BinaryExpression(BinaryOperator::GteOp, left, right); break;
-                    case LT: left =  new BinaryExpression(BinaryOperator::GtOp, right, left); break;
-                    case LEQ: left = new BinaryExpression(BinaryOperator::GteOp, right, left); break;
+                    case LT: left =  new BinaryExpression(BinaryOperator::LtOp, left, right); break;
+                    case LEQ: left = new BinaryExpression(BinaryOperator::GteOp, left, right); break;
+                    case NEQ: left = new BinaryExpression(BinaryOperator::NotEqualsOp, left, right); break;
+                    case EQUALITY: left = new BinaryExpression(BinaryOperator::EqualityOp, left, right); break;
                 };
                 
             }
@@ -72,7 +77,7 @@ class Parser {
             Expression * left = factor();
             while (match(2, PLUS, MINUS)) {
                 Token op = previous();
-                Expression * right = term();
+                Expression * right = factor();
 
                 switch (op.get_type()) {
                     case PLUS: left = new BinaryExpression(BinaryOperator::IntPlusOp, left, right); break;
@@ -89,7 +94,7 @@ class Parser {
             Expression * left = unary();
             while (match(3, TIMES, DIVIDES, MOD)) {
                 Token op = previous();
-                Expression * right = term();
+                Expression * right = unary();
 
                 switch (op.get_type()) {
                     case TIMES: left = new BinaryExpression(BinaryOperator::IntTimesOp, left, right); break;
@@ -138,6 +143,20 @@ class Parser {
                     return inner_exp;
                 }
             }
+        }
+
+        Expression * if_expression() {
+            advance(); // left paren 
+            Expression * conditional = expression();
+            advance(); // right paren
+            advance(); // left brace
+            Expression * if_exp = expression();
+            advance(); // right brace
+            advance(); // else 
+            advance(); // left brace
+            Expression * else_exp = expression();
+            advance(); // right brace
+            return new IfExpression(conditional, if_exp, else_exp);
         }
 
     private:

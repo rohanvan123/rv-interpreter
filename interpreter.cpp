@@ -49,7 +49,24 @@ class Interpreter {
                         throw std::runtime_error("Error identifier " + var_name + " does not exist in store");
                     }
                 }
-                case ExpressionType::IF_EXP: return "";
+                case ExpressionType::IF_EXP: {
+                    // std::cout << "if" << std::endl;
+                    IfExpression * if_statement = dynamic_cast<IfExpression*>(exp);
+                    auto raw_val = evaluate_expression(if_statement->get_conditional(), env);
+                    if (std::holds_alternative<AstValue>(raw_val)) {
+                        AstValue val = std::get<AstValue>(raw_val);
+                        if (std::holds_alternative<bool>(val)) {
+                            bool b = std::get<bool>(val);
+                            // std::cout << b << std::endl;
+                            if (b == true) {
+                                return evaluate_expression(if_statement->get_if_exp(), env);
+                            } else {
+                                return evaluate_expression(if_statement->get_else_exp(), env);
+                            }
+
+                        }
+                    }
+                }
                 case ExpressionType::BIN_EXP: {
                     // std::cout << "bin" << std::endl;
                     BinaryExpression * bin_exp = dynamic_cast<BinaryExpression*>(exp);
@@ -67,6 +84,13 @@ class Interpreter {
                                 case BinaryOperator::IntTimesOp: return val1 * val2;
                                 case BinaryOperator::IntDivOp: return val1 / val2;
                                 case BinaryOperator::ModOp: return val1 % val2;
+
+                                case BinaryOperator::GtOp: return val1 > val2;
+                                case BinaryOperator::GteOp: return val1 >= val2;
+                                case BinaryOperator::LtOp: return val1 < val2;
+                                case BinaryOperator::LteOp: return val1 <= val2;
+                                case BinaryOperator::EqualityOp: return val1 == val2;
+                                case BinaryOperator::NotEqualsOp: return val1 != val2;
                             };
                         }
                     }
@@ -89,7 +113,16 @@ class Interpreter {
                                 return 0;
                             };
                         } else if (std::holds_alternative<bool>(val)) {
-
+                            bool b = std::get<bool>(val);
+                            switch (mon_exp->get_type()) {
+                                case MonadicOperator::NotOp: return !b;
+                                case MonadicOperator::PrintOp: {
+                                    std::string bool_str = b ? "true" : "false";
+                                    std::cout << bool_str << std::endl;
+                                }
+                                return 0;
+                            };
+                            
                         }
                     }
                     break;

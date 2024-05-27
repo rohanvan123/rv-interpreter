@@ -101,6 +101,12 @@ enum class BinaryOperator {
     EqualityOp,
     GtOp,
     GteOp,
+    LtOp,
+    LteOp,
+    EqualsOp,
+    NotEqualsOp,
+    AndOp,
+    OrOp
 };
 
 class BinaryExpression : public Expression {
@@ -124,4 +130,17 @@ class AssignmentExpression : public Expression {
         AssignmentExpression(std::string identifier, Expression * e) : Expression(ExpressionType::LET_EXP), ident(identifier), exp(e) {}
         std::string get_id() { return ident; }
         Expression * get_right() { return exp; }
+};
+
+class IfExpression : public Expression {
+    private:
+        Expression * conditional;
+        Expression * if_exp;
+        Expression * else_exp;
+    public: 
+        IfExpression(Expression * e1, Expression * e2, Expression * e3): Expression(ExpressionType::IF_EXP), conditional(e1), if_exp(e2), else_exp(e3) {}
+        Expression * get_conditional() {return conditional; }
+        Expression * get_if_exp() {return if_exp; }
+        Expression * get_else_exp() {return else_exp; }
+
 };

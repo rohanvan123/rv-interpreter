@@ -1,4 +1,4 @@
-let x = 31;
-let y = 30;
-let z = x / y + 2;
+let x = 12;
+let y = 15;
+let z = x + y;
 print(z);

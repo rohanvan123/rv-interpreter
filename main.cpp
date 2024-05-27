@@ -15,7 +15,10 @@ std::string string_of_expression(Expression* exp) {
             res += "ConstExp(";
             
             switch (const_exp->get_type()) {
-                case ConstType::BoolConst: return res + "BoolConst " + std::to_string(const_exp->value.bool_val) + ')';
+                case ConstType::BoolConst: {
+                    std::string bool_str = const_exp->value.bool_val ? "true" : "false";
+                    return res + "BoolConst " + bool_str + ')';
+                }
                 case ConstType::IntConst: return res + "IntConst " + std::to_string(const_exp->value.int_val) + ')';
                 case ConstType::StringConst: {
                     std::string * s = const_exp->value.string_val;
@@ -31,28 +34,55 @@ std::string string_of_expression(Expression* exp) {
             return "VarExp(" + var_exp->get_var_name() + ")";
             break;
         }
-        case ExpressionType::IF_EXP: return "";
+        case ExpressionType::IF_EXP: {
+            IfExpression * if_statement = dynamic_cast<IfExpression*>(exp);
+            res += "IfExp(";
+            res += string_of_expression(if_statement->get_conditional());
+            res += ", ";
+            res += string_of_expression(if_statement->get_if_exp());
+            res += ", ";
+            res += string_of_expression(if_statement->get_else_exp());
+            res += ")";
+            break;
+        }
         case ExpressionType::BIN_EXP: {
             // std::cout << "bin" << std::endl;
             BinaryExpression * bin_exp = dynamic_cast<BinaryExpression*>(exp);
             res += "BinaryExp(";
-            switch (bin_exp->get_type()) {
-                case BinaryOperator::IntPlusOp: 
-                    res += "IntPlusOp, "; 
-                    break;
-                case BinaryOperator::IntMinusOp: 
-                    res += "IntMinusOp, ";
-                    break;
-                case BinaryOperator::IntTimesOp: 
-                    res += "IntTimesOp, ";
-                    break;
-                case BinaryOperator::IntDivOp: 
-                    res += "IntDivOp, ";
-                    break;
-                case BinaryOperator::ModOp: 
-                    res += "ModOp, ";
-                    break;
+            std::map<BinaryOperator, std::string> op_to_string = {
+                {BinaryOperator::IntPlusOp, "IntPlusOp, "},
+                {BinaryOperator::IntMinusOp, "IntMinusOp, "},
+                {BinaryOperator::IntTimesOp, "IntTimesOp, "},
+                {BinaryOperator::IntDivOp, "IntDivOp, "},
+                {BinaryOperator::ModOp, "ModOp, "},
+                {BinaryOperator::GtOp, "GtOp, "},
+                {BinaryOperator::GteOp, "GteOp, "},
+                {BinaryOperator::LtOp, "LtOp, "},
+                {BinaryOperator::LteOp, "LteOp, "},
+                {BinaryOperator::NotEqualsOp, "NotEqualsOp, "},
+                {BinaryOperator::EqualityOp, "EqualsOp, "},
+                {BinaryOperator::AndOp, "AndOp, "},
+                {BinaryOperator::OrOp, "OrOp, "},
+
             };
+            // switch (bin_exp->get_type()) {
+            //     case BinaryOperator::IntPlusOp: 
+            //         res += "IntPlusOp, "; 
+            //         break;
+            //     case BinaryOperator::IntMinusOp: 
+            //         res += "IntMinusOp, ";
+            //         break;
+            //     case BinaryOperator::IntTimesOp: 
+            //         res += "IntTimesOp, ";
+            //         break;
+            //     case BinaryOperator::IntDivOp: 
+            //         res += "IntDivOp, ";
+            //         break;
+            //     case BinaryOperator::ModOp: 
+            //         res += "ModOp, ";
+            //         break;
+            // };
+            res += op_to_string[bin_exp->get_type()];
             res += string_of_expression(bin_exp->get_left());
             res += ", ";
             res += string_of_expression(bin_exp->get_right());
@@ -66,8 +96,13 @@ std::string string_of_expression(Expression* exp) {
             switch (mon_exp->get_type()) {
                 case MonadicOperator::IntNegOp: 
                     res += "IntNegOp, ";
+                    break;
                 case MonadicOperator::PrintOp: 
                     res += "Print, ";
+                    break;
+                case MonadicOperator::NotOp:
+                    res += "NotOp, ";
+                    break;
             };
             res += string_of_expression(mon_exp->get_right());
             res += ")";
@@ -96,6 +131,13 @@ void print_tokens(const std::vector<Token>& tokens) {
         std::cout << token_to_string(tokens[i]) << ", ";
     }
     std::cout << token_to_string(tokens[tokens.size() - 1]) << "]" << std::endl;
+}
+
+void print_tokens_backend(const std::vector<Token>& tokens) {
+    for (size_t i = 0; i < tokens.size() - 1; i++) {
+        std::cout << token_to_string(tokens[i]) << ",";
+    }
+    std::cout << token_to_string(tokens[tokens.size() - 1]) << std::endl;
 }
 
 void print_commands(const std::vector<std::vector<Token>>& sequence) {
@@ -141,7 +183,7 @@ int main(int argc, char *argv[]) {
     // std::cout << buffer << std::endl;
     Lexer lex(buffer);
     std::vector<Token> tokens = lex.generate_tokens();
-    // print_tokens(tokens);
+    print_tokens_backend(tokens);
     std::vector<std::vector<Token>> sequence = generate_sequence(tokens);
     // print_commands(sequence);
 

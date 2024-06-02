@@ -33,6 +33,7 @@ enum TokenType {
     GT,
     LT,
     COMMA,
+    END_BLOCK,
 
     // Two Characters
     NEQ,
@@ -101,6 +102,7 @@ std::string token_to_string(Token token) {
         case GT: return "GT";
         case LT: return "LT";
         case COMMA: return "COMMA";
+        case END_BLOCK: return "END_BLOCK";
 
         case NEQ: return "NEQ";
         case LEQ: return "LEQ";
@@ -136,11 +138,50 @@ class Lexer {
             start = 0;
             current = 0;
             line = 1;
+            split_idx = 0;
         }
 
         bool in_bounds() {
             return current < source.size();
         }
+
+        // std::vector<std::vector<Token>> generate_seq_if(std::vector<Token>& tokens) {
+        //     std::vector<std::vector<Token>> sequence;
+        //     std::vector<Token> curr;
+
+        //     while (split_idx < tokens.size() && tokens[split_idx].get_type() != RBRACE) {
+        //         if 
+        //     }
+        // }
+
+        // std::vector<std::vector<Token>> generate_sequence_set(std::vector<Token>& tokens) {
+        //     std::vector<std::vector<Token>> sequence;
+        //     std::vector<Token> curr;
+            
+
+        //     while (split_idx < tokens.size()) {
+        //         if (tokens[split_idx].get_type() == SEMI) {
+        //             sequence.push_back(curr);
+        //             curr.clear();
+        //         } else if (tokens[split_idx].get_type() == IF) {
+
+        //         } else {
+        //             curr.push_back(tokens[split_idx]);
+        //         }
+        //         split_idx += 1;
+        //     }
+
+        //     // for (split_idx; split_idx < tokens.size(); split_idx++) {
+        //     //     if (tokens[i].get_type() == SEMI) {
+        //     //         sequence.push_back(curr);
+        //     //         curr.clear();
+        //     //     } else {
+        //     //         curr.push_back(tokens[i]);
+        //     //     }
+        //     // }
+
+        //     return sequence;
+        // }
 
         std::vector<Token> generate_tokens() {
             while (in_bounds()) {
@@ -211,7 +252,8 @@ class Lexer {
             {'{', LBRACE},
             {'}', RBRACE},
             {',', COMMA},
-
+            {'$', END_BLOCK},
+            
         };
 
         std::map<std::string, TokenType> keyword_tokens = {
@@ -235,6 +277,7 @@ class Lexer {
         std::string source;
         size_t start;
         size_t current;
+        size_t split_idx;
         int line;
 };
 

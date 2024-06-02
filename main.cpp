@@ -1,6 +1,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <stack>
 #include "parser.cpp"
 #include "interpreter.cpp"
 
@@ -168,6 +169,36 @@ std::vector<std::vector<Token>> generate_sequence(std::vector<Token>& tokens) {
     return sequence;
 }
 
+std::vector<std::vector<Token>> generate_sequence_test(std::vector<Token>& tokens) {
+    std::vector<std::vector<Token>> sequence;
+    bool inside_if_or_while = false;
+    std::vector<Token> curr;
+
+    for (size_t i = 0; i < tokens.size(); i++) {
+        TokenType tok_type = tokens[i].get_type();
+        
+        if (inside_if_or_while) {
+            if (tok_type == END_BLOCK) {
+                sequence.push_back(curr);
+                curr.clear();
+                inside_if_or_while = false;
+            } else  {
+                curr.push_back(tokens[i]);
+            }
+        } else if (tok_type == SEMI) {
+            sequence.push_back(curr);
+            curr.clear();
+        } else if (tok_type == IF || tok_type == WHILE) {
+            curr.push_back(tokens[i]);
+            inside_if_or_while = true;
+        } else  {
+            curr.push_back(tokens[i]);
+        }
+    }
+
+    return sequence;
+}
+
 int main(int argc, char *argv[]) {
     // std::cout << "test" << std::endl;
     std::string input_str;
@@ -184,8 +215,8 @@ int main(int argc, char *argv[]) {
     Lexer lex(buffer);
     std::vector<Token> tokens = lex.generate_tokens();
     print_tokens_backend(tokens);
-    std::vector<std::vector<Token>> sequence = generate_sequence(tokens);
-    // print_commands(sequence);
+    std::vector<std::vector<Token>> sequence = generate_sequence_test(tokens);
+    print_commands(sequence);
 
     std::vector<Expression*> expressions;
     for (size_t i = 0; i < sequence.size(); i++) {

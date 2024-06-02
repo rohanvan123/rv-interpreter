@@ -146,16 +146,23 @@ class Parser {
         }
 
         Expression * if_expression() {
-            advance(); // left paren 
+            // std::cout << "if-statment - " << current << std::endl;
+            if (!match(1, LEFT_PAREN)) {}
             Expression * conditional = expression();
-            advance(); // right paren
-            advance(); // left brace
+            if (!match(1, RIGHT_PAREN)) {}
+            if (!match(1, LBRACE)) {}
+
+            while (!match(1, RBRACE))
             Expression * if_exp = expression();
+            // std::cout << current << std::endl;
             advance(); // right brace
             advance(); // else 
+            advance();
             advance(); // left brace
+            // std::cout << current << std::endl;
             Expression * else_exp = expression();
             advance(); // right brace
+            advance();
             return new IfExpression(conditional, if_exp, else_exp);
         }
 

@@ -1,5 +1,5 @@
 let x = 10;
-let z = 19
+let z = 19;
 if (x > z) {
     print(z);
 } else {

@@ -1,0 +1,6 @@
+LET,IDENT i,EQUALS,INT 0,SEMI,LET,IDENT x,EQUALS,INT 1,SEMI,WHILE,LEFT_PAREN,IDENT i,LT,INT 5,RIGHT_PAREN,LBRACE,IDENT x,EQUALS,IDENT x,PLUS,IDENT x,SEMI,IDENT i,EQUALS,IDENT i,PLUS,INT 1,SEMI,RBRACE,PRINT,LEFT_PAREN,IDENT x,RIGHT_PAREN,SEMI,EOF
+LetExp(i, ConstExp(IntConst 0))
+LetExp(x, ConstExp(IntConst 1))
+WhileExp(BinaryExp(LtOp, VarExp(i), ConstExp(IntConst 5)), [ReassignExp(x, BinaryExp(IntPlusOp, VarExp(x), VarExp(x))), ReassignExp(i, BinaryExp(IntPlusOp, VarExp(i), ConstExp(IntConst 1)))])
+MonadicExp(Print, VarExp(x))
+32

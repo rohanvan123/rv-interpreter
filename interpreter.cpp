@@ -59,9 +59,17 @@ class Interpreter {
                             bool b = std::get<bool>(val);
                             // std::cout << b << std::endl;
                             if (b == true) {
-                                return evaluate_expression(if_statement->get_if_exp(), env);
+                                std::vector<Expression*> true_statments = if_statement->get_if_exps();
+                                for (Expression* sub_exp : true_statments) {
+                                    env = evaluate_expression(sub_exp, env);
+                                }
+                                return env;
                             } else {
-                                return evaluate_expression(if_statement->get_else_exp(), env);
+                                std::vector<Expression*> false_statments = if_statement->get_if_exps();
+                                for (Expression* sub_exp : false_statments) {
+                                    env = evaluate_expression(sub_exp, env);
+                                }
+                                return env;
                             }
 
                         }

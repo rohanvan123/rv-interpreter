@@ -6,6 +6,7 @@
 #include <set>
 #include <map>
 #include <regex>
+#include <variant>
 
 using namespace std;
 
@@ -67,10 +68,10 @@ class Token {
             lexeme = l;
             line = ln;
         }
-        TokenType get_type() {
+        TokenType get_type() const {
             return type;
         }
-        std::string get_string() {
+        std::string get_string() const {
             return lexeme;
         }
         int get_line() {
@@ -85,6 +86,15 @@ class Token {
 struct TokenInfo {
     TokenType token;
 };
+
+// Forward declaration
+struct TokenBlock;
+
+using TokenOrBlock = std::variant<Token, TokenBlock>;
+struct TokenBlock {
+    std::vector<TokenOrBlock> contents;
+};
+
 
 std::string token_to_string(Token token) {
     switch (token.get_type()) {
@@ -239,7 +249,6 @@ class Lexer {
     private:
         std::map<char, TokenType> single_chars = {
             {';', SEMI},
-            {'=', EQUALS},
             {'(', LEFT_PAREN},
             {')', RIGHT_PAREN},
             {'+', PLUS},
@@ -247,8 +256,6 @@ class Lexer {
             {'-', MINUS},
             {'/', DIVIDES},
             {'%', MOD},
-            {'<', LT},
-            {'>', GT},
             {'{', LBRACE},
             {'}', RBRACE},
             {',', COMMA},
@@ -257,6 +264,9 @@ class Lexer {
         };
 
         std::map<std::string, TokenType> keyword_tokens = {
+            {"<", LT},
+            {">", GT},
+            {"=", EQUALS},
             {"let", LET},
             {"while", WHILE},
             {"print", PRINT},

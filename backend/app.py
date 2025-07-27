@@ -1,6 +1,7 @@
 import subprocess
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
+import json
 import os
 
 app = Flask(__name__)
@@ -21,7 +22,7 @@ def write_program_to_file(program, filename):
 
 def interpret_program(program_file):
     os.chdir("..")
-    compile_res = subprocess.run("g++ -std=c++20 main.cpp -o bin/main -w", shell=True, text=True, capture_output=True)
+    # compile_res = subprocess.run("g++ -std=c++20 main.cpp -o bin/main -w", shell=True, text=True, capture_output=True)
     exe_res = subprocess.run(f"bin/main {program_file}", shell=True, text=True, capture_output=True)
     
     return exe_res
@@ -56,6 +57,7 @@ def interpret():
     exec_result = interpret_program("test_code/test.rv")
     response_body = parse_program_output(exec_result.stdout)
     os.chdir("./backend")
+    print(json.dumps(response_body, indent=2))
     
 
     

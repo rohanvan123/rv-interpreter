@@ -1,0 +1,6 @@
+LET,IDENT a,EQUALS,INT 5,SEMI,LET,IDENT b,EQUALS,INT 3,SEMI,LET,IDENT result,EQUALS,LEFT_PAREN,IDENT a,TIMES,IDENT b,MINUS,INT 2,RIGHT_PAREN,MOD,INT 3,SEMI,PRINT,LEFT_PAREN,IDENT result,RIGHT_PAREN,SEMI,EOF
+LetExp(a, ConstExp(IntConst 5))
+LetExp(b, ConstExp(IntConst 3))
+LetExp(result, BinaryExp(ModOp, BinaryExp(IntMinusOp, BinaryExp(IntTimesOp, VarExp(a), VarExp(b)), ConstExp(IntConst 2)), ConstExp(IntConst 3)))
+MonadicExp(Print, VarExp(result))
+1

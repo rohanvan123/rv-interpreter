@@ -70,5 +70,6 @@
     "variant": "cpp",
     "algorithm": "cpp",
     "__memory": "cpp"
-  }
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }

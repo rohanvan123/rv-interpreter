@@ -10,7 +10,7 @@ enum class ExpressionType {
     BIN_EXP,
     MON_EXP,
     LET_EXP,
-
+    WHILE_EXP,
 };
 
 class Expression {
@@ -126,21 +126,37 @@ class AssignmentExpression : public Expression {
     private:
         std::string ident;
         Expression * exp;
+        bool reassignment;
     public:
-        AssignmentExpression(std::string identifier, Expression * e) : Expression(ExpressionType::LET_EXP), ident(identifier), exp(e) {}
+        AssignmentExpression(std::string identifier, Expression * e, bool reassignment) 
+            : Expression(ExpressionType::LET_EXP), ident(identifier), exp(e), reassignment(reassignment) {}
         std::string get_id() { return ident; }
         Expression * get_right() { return exp; }
+        bool is_reassign() { return reassignment; }
 };
 
 class IfExpression : public Expression {
     private:
         Expression * conditional;
-        Expression * if_exp;
-        Expression * else_exp;
+        std::vector<Expression *> if_expressions;
+        std::vector<Expression *> else_expressions;
     public: 
-        IfExpression(Expression * e1, Expression * e2, Expression * e3): Expression(ExpressionType::IF_EXP), conditional(e1), if_exp(e2), else_exp(e3) {}
+        IfExpression(Expression * e1, std::vector<Expression *> e2, std::vector<Expression *> e3): 
+            Expression(ExpressionType::IF_EXP), conditional(e1), if_expressions(e2), else_expressions(e3) {}
         Expression * get_conditional() {return conditional; }
-        Expression * get_if_exp() {return if_exp; }
-        Expression * get_else_exp() {return else_exp; }
+        std::vector<Expression *> get_if_exps() {return if_expressions; }
+        std::vector<Expression *> get_else_exps() {return else_expressions; }
+
+};
+
+class WhileExpression : public Expression {
+    private:
+        Expression * conditional;
+        std::vector<Expression *> body_expressions;
+    public: 
+        WhileExpression(Expression * e1, std::vector<Expression *> e2): 
+            Expression(ExpressionType::WHILE_EXP), conditional(e1), body_expressions(e2) {}
+        Expression * get_conditional() {return conditional; }
+        std::vector<Expression *> get_body_exps() {return body_expressions; }
 
 };

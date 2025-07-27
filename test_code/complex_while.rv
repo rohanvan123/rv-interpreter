@@ -1,0 +1,15 @@
+let i = 0;
+let sum = 0;
+while (i < 5) {
+    let j = 0;
+    while (j < 5) {
+        if ((i + j) % 2 == 0) {
+            sum = sum + (i * j);
+        } else {
+            sum = sum - 1;
+        }
+        j = j + 1;
+    }
+    i = i + 1;
+}
+print(sum);

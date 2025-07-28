@@ -23,8 +23,8 @@ def write_program_to_file(program, filename):
     return
 
 def interpret_program(program_file):
-    # compile_res = subprocess.run("g++ -std=c++20 main.cpp -o bin/main -w", shell=True, text=True, capture_output=True)
-    exe_res = subprocess.run(f"./bin/test {program_file}", shell=True, text=True, capture_output=True)
+    compile_res = subprocess.run("g++ -std=c++20 src/main.cpp -o bin/main -w", shell=True, text=True, capture_output=True)
+    exe_res = subprocess.run(f"./bin/main {program_file}", shell=True, text=True, capture_output=True)
     return exe_res
 
 def parse_program_output(raw_ouput):

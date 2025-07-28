@@ -90,6 +90,11 @@ class MonadicExpression : public Expression {
         MonadicExpression(MonadicOperator op, Expression * e) : Expression(ExpressionType::MON_EXP), exp(e), mon_op(op) {}
         MonadicOperator get_type() { return mon_op; }
         Expression * get_right() { return exp; }
+        ~MonadicExpression() {
+            delete exp;
+            exp = nullptr;
+        }
+        
 };
 
 enum class BinaryOperator {
@@ -114,12 +119,19 @@ class BinaryExpression : public Expression {
         Expression * e1;
         Expression * e2;
         BinaryOperator bin_op;
+
     public:
         BinaryExpression(BinaryOperator op, Expression * exp1, Expression * exp2) : Expression(ExpressionType::BIN_EXP), bin_op(op), e1(exp1), e2(exp2) {} 
         BinaryOperator get_type() { return bin_op; }
         Expression * get_left() { return e1; }
         Expression * get_right() { return e2; }
+        ~BinaryExpression() {
+            delete e1;
+            e1 = nullptr;
 
+            delete e2;
+            e2 = nullptr;
+        }
 };
 
 class AssignmentExpression : public Expression {
@@ -127,12 +139,17 @@ class AssignmentExpression : public Expression {
         std::string ident;
         Expression * exp;
         bool reassignment;
+
     public:
         AssignmentExpression(std::string identifier, Expression * e, bool reassignment) 
             : Expression(ExpressionType::LET_EXP), ident(identifier), exp(e), reassignment(reassignment) {}
         std::string get_id() { return ident; }
         Expression * get_right() { return exp; }
         bool is_reassign() { return reassignment; }
+        ~AssignmentExpression() {
+            delete exp;
+            exp = nullptr;
+        }
 };
 
 class IfExpression : public Expression {
@@ -140,12 +157,27 @@ class IfExpression : public Expression {
         Expression * conditional;
         std::vector<Expression *> if_expressions;
         std::vector<Expression *> else_expressions;
+
     public: 
         IfExpression(Expression * e1, std::vector<Expression *> e2, std::vector<Expression *> e3): 
             Expression(ExpressionType::IF_EXP), conditional(e1), if_expressions(e2), else_expressions(e3) {}
         Expression * get_conditional() {return conditional; }
         std::vector<Expression *> get_if_exps() {return if_expressions; }
         std::vector<Expression *> get_else_exps() {return else_expressions; }
+        ~IfExpression() {
+            delete conditional;
+            conditional = nullptr;
+
+            for (Expression* expr : if_expressions) {
+                delete expr;
+            }
+            if_expressions.clear();
+
+            for (Expression* expr : else_expressions) {
+                delete expr;
+            }
+            else_expressions.clear();
+        }
 
 };
 
@@ -153,10 +185,20 @@ class WhileExpression : public Expression {
     private:
         Expression * conditional;
         std::vector<Expression *> body_expressions;
+
     public: 
         WhileExpression(Expression * e1, std::vector<Expression *> e2): 
             Expression(ExpressionType::WHILE_EXP), conditional(e1), body_expressions(e2) {}
         Expression * get_conditional() {return conditional; }
         std::vector<Expression *> get_body_exps() {return body_expressions; }
+        ~WhileExpression() {
+            delete conditional;
+            conditional = nullptr;
+
+            for (Expression* expr : body_expressions) {
+                delete expr;
+            }
+            body_expressions.clear();
+        }
 
 };

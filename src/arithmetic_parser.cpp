@@ -54,6 +54,7 @@ class ArithmeticParser {
                     case LEQ: left = new BinaryExpression(BinaryOperator::GteOp, left, right); break;
                     case NEQ: left = new BinaryExpression(BinaryOperator::NotEqualsOp, left, right); break;
                     case EQUALITY: left = new BinaryExpression(BinaryOperator::EqualityOp, left, right); break;
+                    default: return nullptr;
                 };
                 
             }
@@ -71,6 +72,7 @@ class ArithmeticParser {
                 switch (op.get_type()) {
                     case PLUS: left = new BinaryExpression(BinaryOperator::IntPlusOp, left, right); break;
                     case MINUS: left =  new BinaryExpression(BinaryOperator::IntMinusOp, left, right); break;
+                    default: return nullptr;
                 };
                 
             }
@@ -89,6 +91,7 @@ class ArithmeticParser {
                     case TIMES: left = new BinaryExpression(BinaryOperator::IntTimesOp, left, right); break;
                     case DIVIDES: left =  new BinaryExpression(BinaryOperator::IntDivOp, left, right); break;
                     case MOD: left = new BinaryExpression(BinaryOperator::ModOp, left, right); break;
+                    default: return nullptr;
                 };
                 
             }
@@ -105,6 +108,7 @@ class ArithmeticParser {
                 switch (op.get_type()) {
                     case PRINT: return new MonadicExpression(MonadicOperator::PrintOp, right);
                     case MINUS: return new MonadicExpression(MonadicOperator::IntNegOp, right);
+                    default: return nullptr;
                 };
             }
             
@@ -132,6 +136,8 @@ class ArithmeticParser {
                     return inner_exp;
                 }
             }
+
+            return nullptr;
         }
 
         // Expression * if_expression() {
@@ -153,13 +159,6 @@ class ArithmeticParser {
         //     return new IfExpression(conditional, if_exp, else_exp);
         // }
 
-        Expression * while_expression() {
-            advance(); // left paren 
-            Expression * conditional = expression();
-            advance(); // right paren
-            advance(); // left brace
-        }
-
     private:
         size_t current;
         const std::vector<Token> tokens;
@@ -170,10 +169,9 @@ class ArithmeticParser {
             va_start(args, count);
 
             for (int i = 0; i < count; i++) {
-                TokenType type = va_arg(args, TokenType);
-                // std::cout << type;
+                int raw_type = va_arg(args, int);
+                TokenType type = static_cast<TokenType>(raw_type);
                 if (check(type)) {
-                    // std::cout << "found match ";
                     va_end(args);
                     advance();
                     return true;

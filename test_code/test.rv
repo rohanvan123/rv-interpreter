@@ -1,6 +1,6 @@
 let x = 10;
-if (x > 5) {
-    print(true);
+if (true + true) {
+    print(i);
     print(true);
 } else {
     print(false);

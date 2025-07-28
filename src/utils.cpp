@@ -215,3 +215,12 @@ std::string string_of_expression(Expression* exp) {
     return res;
 
 }
+
+
+void cleanup_expressions(std::vector<Expression*> expressions) {
+    for (Expression *e : expressions) {
+        delete e;
+    }
+
+    expressions.clear();
+}

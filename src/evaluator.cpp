@@ -30,18 +30,15 @@ class Evaluator {
                     };
                 }
                 case ExpressionType::VAR_EXP: {
-                    // std::cout << "var" << std::endl;
-                    // std::cout << "its variable" << std::endl;
                     VarExp * var_exp = dynamic_cast<VarExp*>(exp);
                     std::string var_name = var_exp->get_var_name();
-                    if (env.find(var_name) != env.end()) {
-                        return env[var_name];
-                    } else {
+                    if (env.find(var_name) == env.end()) {
                         throw std::runtime_error("Error identifier " + var_name + " does not exist in store");
                     }
+
+                    return env[var_name];
                 }
                 case ExpressionType::IF_EXP: {
-                    // std::cout << "if" << std::endl;
                     IfExpression * if_statement = dynamic_cast<IfExpression*>(exp);
                     AstValue cond_val = evaluate_expression(if_statement->get_conditional());
 
@@ -73,13 +70,14 @@ class Evaluator {
                                 last_result = evaluate_expression(sub_exp);
                             }
 
+                        } else {
+                            throw std::runtime_error("While loop condition does not evaluate to bool");
                         }
                     }
 
                     return last_result;
                 }
                 case ExpressionType::BIN_EXP: {
-                    // std::cout << "bin" << std::endl;
                     BinaryExpression * bin_exp = dynamic_cast<BinaryExpression*>(exp);
                     AstValue va1 = evaluate_expression(bin_exp->get_left());
                     AstValue va2 = evaluate_expression(bin_exp->get_right());
@@ -93,13 +91,14 @@ class Evaluator {
                             case BinaryOperator::IntTimesOp: return val1 * val2;
                             case BinaryOperator::IntDivOp: return val1 / val2;
                             case BinaryOperator::ModOp: return val1 % val2;
-
                             case BinaryOperator::GtOp: return val1 > val2;
                             case BinaryOperator::GteOp: return val1 >= val2;
                             case BinaryOperator::LtOp: return val1 < val2;
                             case BinaryOperator::LteOp: return val1 <= val2;
                             case BinaryOperator::EqualityOp: return val1 == val2;
                             case BinaryOperator::NotEqualsOp: return val1 != val2;
+                            default: throw std::runtime_error("Incorrect BinOp (int): " + std::to_string(int(bin_exp->get_type())));
+                            return -1;
                         };
                     } else if (std::holds_alternative<bool>(va1) && std::holds_alternative<bool>(va2)) {
                         bool val1 = std::get<bool>(va1);
@@ -110,6 +109,8 @@ class Evaluator {
                             case BinaryOperator::NotEqualsOp: return val1 != val2;
                             case BinaryOperator::AndOp: return val1 && val2;
                             case BinaryOperator::OrOp: return val1 || val2;
+                            default: throw std::runtime_error("Incorrect BinOp (bool): " + std::to_string(int(bin_exp->get_type())));
+                            return -1;
 
                         };
                     }
@@ -127,8 +128,10 @@ class Evaluator {
                             case MonadicOperator::IntNegOp: return -1 * i;
                             case MonadicOperator::PrintOp: {
                                 std::cout << i << std::endl;
+                                return 0;
                             }
-                            return 0;
+                            default: throw std::runtime_error("Incorrect MonOp (int): " + std::to_string(int(mon_exp->get_type())));
+                            return -1;
                         };
                     } else if (std::holds_alternative<bool>(val)) {
                         bool b = std::get<bool>(val);
@@ -137,8 +140,10 @@ class Evaluator {
                             case MonadicOperator::PrintOp: {
                                 std::string bool_str = b ? "true" : "false";
                                 std::cout << bool_str << std::endl;
+                                return 0;
                             }
-                            return 0;
+                            default: throw std::runtime_error("Incorrect MonOp (bool): " + std::to_string(int(mon_exp->get_type())));
+                            return -1;
                         };
                         
                     }
@@ -154,5 +159,7 @@ class Evaluator {
                     return val;
                 }
             };
+            std::cerr << "Unhandled expression type: " << exp << "\n";
+            return -1;
         }
 };

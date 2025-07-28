@@ -31,4 +31,5 @@ int main(int argc, char *argv[]) {
     Evaluator evaluator;
     evaluator.evaluate_commands(expressions);
     
+    cleanup_expressions(expressions);
 }

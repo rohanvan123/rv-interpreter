@@ -25,17 +25,21 @@ def write_program_to_file(program, filename):
 def interpret_program(program_file):
     # compile_res = subprocess.run("g++ -std=c++20 src/main.cpp -o bin/main -w", shell=True, text=True, capture_output=True)
     exe_res = subprocess.run(f"./bin/main {program_file}", shell=True, text=True, capture_output=True)
+    print("stdout:", exe_res.stdout)
+    print("stderr:", exe_res.stderr)
     return exe_res
 
 def parse_program_output(raw_ouput):
     outputs = raw_ouput.split(DELIMITER)
     lexer_ouput = outputs[0]
+    print(lexer_ouput)
     lines = lexer_ouput.split('\n')[:-1]
     tokens_per_line = [line.split(",") for line in lines]
     for i in range(len(tokens_per_line)):
         tokens_per_line[i] = [tok.strip() for tok in tokens_per_line[i]]
 
     parser_output = outputs[1]
+    print(parser_output)
     ast_sequence = parser_output.split('\n')[1:-1]
 
     evaluator_output = outputs[2]
@@ -63,6 +67,7 @@ def interpret():
         # clear the contents
         open(file_path, 'w').close()
 
+    print(code_commands)
     write_program_to_file(code_commands, file_path)
     exec_result = interpret_program("test_code/test.rv")
     response_body = parse_program_output(exec_result.stdout)

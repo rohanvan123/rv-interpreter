@@ -1,3 +1,55 @@
-### RV Interprter
+# RV Interpreter
+
+A C++ interpreter for a custom Python-like language called **RV**. This project includes a **lexer**, **parser**, and **evaluator**—all written in C++. A **Flask backend** can be run as a server to handle interpretation requests, allowing a separate frontend visualizer to interact with it.
+
 ---
-This repo is the backend for a C++ interpreter that can evaluate a custom python-like language that I designed known as RV. The lexer, parser, and evaluator are all written in C++ and the server that the frontend visualizer communicates with is a Flask application. 
+
+## 🧱 Architecture
+
+![Alt text](images/architecture.png)
+
+## 🔧 Features
+
+- 🧾 Custom language RV designed with Python-like syntax
+- ⚙️ C++ implementation of lexer, parser, and evaluator
+- 🌐 Flask-based backend to expose API endpoints for the interpreter
+- 📊 Compatible with a React-based frontend visualizer
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/your-username/rv-interpreter.git
+cd rv-interpreter
+```
+
+### 2. Compile (Linux/macOS)
+
+```bash
+g++ -std=c++20 src/main.cpp -o bin/main
+```
+
+### 3. Run
+
+```run
+./bin/main <PATH_TO_FILE>
+```
+
+---
+
+## Running the Backend
+
+### 1. Install all Dependencies
+
+```bash
+pip3 install -r requirements.txt
+```
+
+### 2. Run server
+
+```bash
+flask run
+```

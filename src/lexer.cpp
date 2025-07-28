@@ -195,7 +195,7 @@ class Lexer {
 
         std::vector<Token> generate_tokens() {
             while (in_bounds()) {
-                if (isspace(source[current])) {
+                if (source[current] == ' ') {
                     current += 1;
                     start += 1;
                 } else if (source[current] == '\n') {

@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++20 -w
 TARGET = bin/test
-SRCS = main.cpp
+SRCS = src/main.cpp
 
 test:
 	mkdir -p bin

@@ -1,6 +1,22 @@
-LET,IDENT i,EQUALS,INT 0,SEMI,LET,IDENT sum,EQUALS,INT 0,SEMI,WHILE,LEFT_PAREN,IDENT i,LT,INT 5,RIGHT_PAREN,LBRACE,LET,IDENT j,EQUALS,INT 0,SEMI,WHILE,LEFT_PAREN,IDENT j,LT,INT 5,RIGHT_PAREN,LBRACE,IF,LEFT_PAREN,LEFT_PAREN,IDENT i,PLUS,IDENT j,RIGHT_PAREN,MOD,INT 2,EQUALITY,INT 0,RIGHT_PAREN,LBRACE,IDENT sum,EQUALS,IDENT sum,PLUS,LEFT_PAREN,IDENT i,TIMES,IDENT j,RIGHT_PAREN,SEMI,RBRACE,ELSE,LBRACE,IDENT sum,EQUALS,IDENT sum,MINUS,INT 1,SEMI,RBRACE,IDENT j,EQUALS,IDENT j,PLUS,INT 1,SEMI,RBRACE,IDENT i,EQUALS,IDENT i,PLUS,INT 1,SEMI,RBRACE,PRINT,LEFT_PAREN,IDENT sum,RIGHT_PAREN,SEMI,EOF
+LET, IDENT i, EQUALS, INT 0, SEMI
+LET, IDENT sum, EQUALS, INT 0, SEMI
+WHILE, LEFT_PAREN, IDENT i, LT, INT 5, RIGHT_PAREN, LBRACE
+LET, IDENT j, EQUALS, INT 0, SEMI
+WHILE, LEFT_PAREN, IDENT j, LT, INT 5, RIGHT_PAREN, LBRACE
+IF, LEFT_PAREN, LEFT_PAREN, IDENT i, PLUS, IDENT j, RIGHT_PAREN, MOD, INT 2, EQUALITY, INT 0, RIGHT_PAREN, LBRACE
+IDENT sum, EQUALS, IDENT sum, PLUS, LEFT_PAREN, IDENT i, TIMES, IDENT j, RIGHT_PAREN, SEMI
+RBRACE, ELSE, LBRACE
+IDENT sum, EQUALS, IDENT sum, MINUS, INT 1, SEMI
+RBRACE
+IDENT j, EQUALS, IDENT j, PLUS, INT 1, SEMI
+RBRACE
+IDENT i, EQUALS, IDENT i, PLUS, INT 1, SEMI
+RBRACE
+PRINT, LEFT_PAREN, IDENT sum, RIGHT_PAREN, SEMI
+=================================
 LetExp(i, ConstExp(IntConst 0))
 LetExp(sum, ConstExp(IntConst 0))
 WhileExp(BinaryExp(LtOp, VarExp(i), ConstExp(IntConst 5)), [LetExp(j, ConstExp(IntConst 0)), WhileExp(BinaryExp(LtOp, VarExp(j), ConstExp(IntConst 5)), [IfExp(BinaryExp(EqualsOp, BinaryExp(ModOp, BinaryExp(IntPlusOp, VarExp(i), VarExp(j)), ConstExp(IntConst 2)), ConstExp(IntConst 0)), [ReassignExp(sum, BinaryExp(IntPlusOp, VarExp(sum), BinaryExp(IntTimesOp, VarExp(i), VarExp(j))))], [ReassignExp(sum, BinaryExp(IntMinusOp, VarExp(sum), ConstExp(IntConst 1)))]), ReassignExp(j, BinaryExp(IntPlusOp, VarExp(j), ConstExp(IntConst 1)))]), ReassignExp(i, BinaryExp(IntPlusOp, VarExp(i), ConstExp(IntConst 1)))])
 MonadicExp(Print, VarExp(sum))
+=================================
 40

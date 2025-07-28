@@ -1,11 +1,73 @@
+#include <fstream>
+
 void print_tokens(const std::vector<Token>& tokens) {
-    std::cout << "[";
+    // std::cout << "[";
     for (size_t i = 0; i < tokens.size() - 1; i++) {
         std::cout << token_to_string(tokens[i]) << ", ";
     }
-    std::cout << token_to_string(tokens[tokens.size() - 1]) << "]" << std::endl;
+    std::cout << token_to_string(tokens[tokens.size() - 1]) << std::endl;
 }
 
+void print_tokens_backend(const std::vector<Token>& tokens) {
+    for (size_t i = 0; i < tokens.size() - 1; i++) {
+        std::cout << token_to_string(tokens[i]) << ",";
+    }
+    std::cout << token_to_string(tokens[tokens.size() - 1]) << std::endl;
+}
+
+void print_tokens_by_line(const std::vector<Token>& tokens) {
+    std::vector<Token> curr;
+    int line_no = 1;
+
+    for (int i = 0; i < tokens.size(); i++) {
+        Token tok = tokens[i];
+        if (tok.get_line() != line_no) {
+            print_tokens(curr);
+            curr.clear();
+            line_no = tok.get_line();
+        }
+        curr.push_back(tok);
+    }
+}
+
+void print_commands(const std::vector<std::vector<Token>>& sequence) {
+    std::cout << "[" << std::endl;
+    for (size_t i = 0; i < sequence.size() - 1; i++) {
+        std::cout << "  ";
+        print_tokens(sequence[i]);
+    }
+
+    std::cout << "  ";
+    print_tokens(sequence[sequence.size() - 1]);
+    std::cout << "]" << std::endl;
+}
+
+std::vector<std::vector<Token>> generate_sequence(std::vector<Token>& tokens) {
+    std::vector<std::vector<Token>> sequence;
+    std::vector<Token> curr;
+
+    for (size_t i = 0; i < tokens.size(); i++) {
+        if (tokens[i].get_type() == SEMI) {
+            sequence.push_back(curr);
+            curr.clear();
+        } else {
+            curr.push_back(tokens[i]);
+        }
+    }
+
+    return sequence;
+}
+
+std::string read_file_into_buffer(char *filepath) {
+    std::ifstream program_file(filepath);
+    std::string buffer;
+    std::string line;
+    while (std::getline(program_file, line)) {
+        buffer += line + "\n"; // Append each line to the buffer with a newline character
+    }
+
+    return buffer;
+}
 
 std::string string_of_expression(Expression* exp) {
     // std::cout << exp << std::endl;

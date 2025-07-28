@@ -1,6 +1,11 @@
-LET,IDENT x,EQUALS,INT 12,SEMI,LET,IDENT y,EQUALS,INT 15,SEMI,LET,IDENT z,EQUALS,IDENT x,PLUS,IDENT y,SEMI,PRINT,LEFT_PAREN,IDENT z,RIGHT_PAREN,SEMI,EOF
+LET, IDENT x, EQUALS, INT 12, SEMI
+LET, IDENT y, EQUALS, INT 15, SEMI
+LET, IDENT z, EQUALS, IDENT x, PLUS, IDENT y, SEMI
+PRINT, LEFT_PAREN, IDENT z, RIGHT_PAREN, SEMI
+=================================
 LetExp(x, ConstExp(IntConst 12))
 LetExp(y, ConstExp(IntConst 15))
 LetExp(z, BinaryExp(IntPlusOp, VarExp(x), VarExp(y)))
 MonadicExp(Print, VarExp(z))
+=================================
 27

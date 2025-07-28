@@ -1,5 +1,9 @@
-LET,IDENT x,EQUALS,INT 7,SEMI,LET,IDENT y,EQUALS,MINUS,INT 1,SEMI,PRINT,LEFT_PAREN,LEFT_PAREN,INT 3,PLUS,IDENT y,RIGHT_PAREN,TIMES,INT 7,RIGHT_PAREN,SEMI,EOF
+LET, IDENT x, EQUALS, INT 7, SEMI
+LET, IDENT y, EQUALS, MINUS, INT 1, SEMI
+PRINT, LEFT_PAREN, LEFT_PAREN, INT 3, PLUS, IDENT y, RIGHT_PAREN, TIMES, INT 7, RIGHT_PAREN, SEMI
+=================================
 LetExp(x, ConstExp(IntConst 7))
 LetExp(y, MonadicExp(IntNegOp, ConstExp(IntConst 1)))
 MonadicExp(Print, BinaryExp(IntTimesOp, BinaryExp(IntPlusOp, ConstExp(IntConst 3), VarExp(y)), ConstExp(IntConst 7)))
+=================================
 14

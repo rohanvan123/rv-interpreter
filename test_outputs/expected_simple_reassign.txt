@@ -1,6 +1,11 @@
-LET,IDENT y,EQUALS,INT 7,SEMI,LET,IDENT x,EQUALS,INT 6,SEMI,IDENT x,EQUALS,INT 2,TIMES,IDENT y,SEMI,PRINT,LEFT_PAREN,IDENT x,RIGHT_PAREN,SEMI,EOF
+LET, IDENT y, EQUALS, INT 7, SEMI
+LET, IDENT x, EQUALS, INT 6, SEMI
+IDENT x, EQUALS, INT 2, TIMES, IDENT y, SEMI
+PRINT, LEFT_PAREN, IDENT x, RIGHT_PAREN, SEMI
+=================================
 LetExp(y, ConstExp(IntConst 7))
 LetExp(x, ConstExp(IntConst 6))
 ReassignExp(x, BinaryExp(IntTimesOp, ConstExp(IntConst 2), VarExp(y)))
 MonadicExp(Print, VarExp(x))
+=================================
 14

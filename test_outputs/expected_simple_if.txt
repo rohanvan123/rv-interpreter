@@ -1,4 +1,11 @@
-LET,IDENT x,EQUALS,INT 10,SEMI,IF,LEFT_PAREN,IDENT x,GT,INT 5,RIGHT_PAREN,LBRACE,PRINT,LEFT_PAREN,BOOL true,RIGHT_PAREN,SEMI,RBRACE,ELSE,LBRACE,PRINT,LEFT_PAREN,BOOL false,RIGHT_PAREN,SEMI,RBRACE,EOF
+LET, IDENT x, EQUALS, INT 10, SEMI
+IF, LEFT_PAREN, IDENT x, GT, INT 5, RIGHT_PAREN, LBRACE
+PRINT, LEFT_PAREN, BOOL true, RIGHT_PAREN, SEMI
+RBRACE, ELSE, LBRACE
+PRINT, LEFT_PAREN, BOOL false, RIGHT_PAREN, SEMI
+RBRACE
+=================================
 LetExp(x, ConstExp(IntConst 10))
 IfExp(BinaryExp(GtOp, VarExp(x), ConstExp(IntConst 5)), [MonadicExp(Print, ConstExp(BoolConst true))], [MonadicExp(Print, ConstExp(BoolConst false))])
+=================================
 true

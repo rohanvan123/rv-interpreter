@@ -143,12 +143,17 @@ class Parser {
         }
 
         AssignmentExpression* parse_let_expression(int &idx) {
-            // std::cout << "parse_let_expression" << std::endl;
             idx += 1; // LET
             const std::string ident_name = _tokens[idx].get_string(); // IDENT name
             idx += 1;
             idx += 1; // EQUALS
-            Expression * inner_exp = parse_expression(idx, false);
+            
+            std::vector<Token> tokens;
+            tokens = tokens_from_idx(idx);
+            ArithmeticParser expr_parser(tokens);
+            Expression * inner_exp = expr_parser.parse();
+
+            idx += 1;
 
             return new AssignmentExpression(ident_name, inner_exp, false);
         }
@@ -157,7 +162,13 @@ class Parser {
             const std::string ident_name = _tokens[idx].get_string(); // IDENT name
             idx += 1;
             idx += 1; // EQUALS
-            Expression * inner_exp = parse_expression(idx, false);
+
+            std::vector<Token> tokens;
+            tokens = tokens_from_idx(idx);
+            ArithmeticParser expr_parser(tokens);
+            Expression * inner_exp = expr_parser.parse();
+
+            idx += 1;
 
             return new AssignmentExpression(ident_name, inner_exp, true);
         }

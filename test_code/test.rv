@@ -1,11 +1,14 @@
 let n = 10;
-let x = [0] * 10;
-x[1] = 1;
-
+let fib = [0] * n;
+fib[1] = 1;
 let i = 2;
+let next = 0;
+print(fib);
+
 while (i < n) {
-  x[i] = x[i - 1] + x[i - 2];
-  i = i + 1;
+    let next = fib[i - 1] + fib[i - 2];
+    fib[i] = next;
+    i = i + 1;
 }
 
-print(x);
+print(fib);

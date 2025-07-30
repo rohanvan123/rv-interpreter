@@ -81,12 +81,12 @@ std::string string_of_expression(Expression* exp) {
             
             switch (const_exp->get_type()) {
                 case ConstType::BoolConst: {
-                    std::string bool_str = std::get<bool>(const_exp->value) ? "true" : "false";
+                    std::string bool_str = std::get<bool>(const_exp->value.data) ? "true" : "false";
                     return res + "BoolConst " + bool_str + ')';
                 }
-                case ConstType::IntConst: return res + "IntConst " + std::to_string(std::get<int>(const_exp->value)) + ')';
+                case ConstType::IntConst: return res + "IntConst " + std::to_string(std::get<int>(const_exp->value.data)) + ')';
                 case ConstType::StringConst: {
-                    std::string s = std::get<std::string>(const_exp->value);
+                    std::string s = std::get<std::string>(const_exp->value.data);
                     return  res + "StringConst \"" + s + "\")";
                 }
             };
@@ -135,6 +135,40 @@ std::string string_of_expression(Expression* exp) {
             }
 
             res += "])";
+            break;
+        }
+        case ExpressionType::LIST_EXP: {
+            ListExpression * list_exp = dynamic_cast<ListExpression*>(exp);
+            res += "ListExp(";
+            res += "[";
+            bool first = true;
+            for (Expression * inner_exp : list_exp->get_elements()) {
+                if (!first) res += ", ";
+                res += string_of_expression(inner_exp);
+                first = false;
+            }
+
+            res += "])";
+            break;
+
+        }
+        case ExpressionType::LIST_ACCESS_EXP: {
+            ListAccessExpression * list_access_exp = dynamic_cast<ListAccessExpression*>(exp);
+            res += "ListAccessExp(";
+            res += string_of_expression(list_access_exp->get_arr_exp()) + ", ";
+            res += string_of_expression(list_access_exp->get_idx_exp());
+            res += ")";
+
+            break;
+        }
+        case ExpressionType::LIST_MODIFY_EXP: {
+            ListModifyExpression * list_assign_exp = dynamic_cast<ListModifyExpression*>(exp);
+            res += "ListModifyExp(";
+            res += string_of_expression(list_assign_exp->get_ident_exp()) + ", ";
+            res += string_of_expression(list_assign_exp->get_idx_exp()) + ", ";;
+            res += string_of_expression(list_assign_exp->get_exp());
+            res += ")";
+
             break;
         }
         case ExpressionType::BIN_EXP: {
@@ -201,12 +235,9 @@ std::string string_of_expression(Expression* exp) {
             break;
         }
         case ExpressionType::LET_EXP: {
-            // std::cout << "let" << std::endl;
             AssignmentExpression * let_exp = dynamic_cast<AssignmentExpression*>(exp);
             res = let_exp->is_reassign() ? "ReassignExp(" + let_exp->get_id() + ", " : "LetExp(" + let_exp->get_id() + ", ";
-            // std::cout << res << std::endl;
             res += string_of_expression(let_exp->get_right());
-            // std::cout << res << std::endl;
             res +=  ")";
             break;
         }
@@ -216,10 +247,44 @@ std::string string_of_expression(Expression* exp) {
 
 }
 
+void print_evaluated_list(std::vector<Value> arr) {
+    std::cout << "[";
+    bool first = true;
+    for (Value v : arr) {
+        if (!first) std::cout << ", ";
+        if (std::holds_alternative<int>(v.data)) {
+            int i = std::get<int>(v.data);
+            std::cout << i;
+        } else if (std::holds_alternative<bool>(v.data)) {
+            bool b = std::get<bool>(v.data);
+            std::string bool_str = b ? "true" : "false";
+            std::cout << bool_str;
+        } else if (std::holds_alternative<std::string>(v.data)) {
+            std::string s = std::get<std::string>(v.data);
+            std::cout << s;
+        } else {
+            std::vector<Value> sub_arr = std::get<std::vector<Value>>(v.data);
+            print_evaluated_list(sub_arr);
+        }
+        first = false;
+    }
+    std::cout << "]";
+}
+
 std::string multiply(std::string str, int m) {
     std::string res = "";
     while (m > 0) {
         res += str;
+        m -= 1;
+    }
+    return res;
+}
+
+std::vector<Value> multiply(std::vector<Value> arr, int m) {
+    std::vector<Value> res;
+
+    while (m > 0) {
+        res.insert(res.end(), arr.begin(), arr.end());
         m -= 1;
     }
     return res;

@@ -127,8 +127,48 @@ class ArithmeticParser {
             // std::cout << "atomic - " << current << std::endl;
             if (match(1, STRING)) return new ConstExp(previous().get_string());
             // std::cout << "atomic - " << current << std::endl;
-            if (match(1, IDENTIFIER)) return new VarExp(previous().get_string());
+            if (match(1, IDENTIFIER)) {
+                Expression* ident_exp = new VarExp(previous().get_string());
+                
+                if (check(LBRACKET)) {
+                    std::vector<Expression*> idx_exps;
+
+                    while (match(1, LBRACKET)) {
+                        Expression * idx_exp = expression();
+                        if (!match(1, RBRACKET)) {
+                            throw std::runtime_error("Expected a ']'");
+                        }
+                        idx_exps.push_back(idx_exp);
+                    }
+
+                    Expression* curr = new ListAccessExpression(ident_exp, idx_exps[0]);
+                    for (int i = 1; i < idx_exps.size(); i++) {
+                        curr = curr = new ListAccessExpression(curr, idx_exps[i]);
+                    }
+
+                    return curr;
+                } else {
+                    return ident_exp;
+                }
+            }
             // std::cout << "atomic - " << current << std::endl;
+
+            if (match(1, LBRACKET)) {
+                std::vector<Expression*> elements;
+
+                if (!check(RBRACKET)) {
+                    do {
+                        Expression * elem_exp = expression();
+                        elements.push_back(elem_exp);
+                    } while (match(1, COMMA));
+                }
+
+                if (!match(1, RBRACKET)) {
+                    throw std::runtime_error("Expected a ']'");
+                }
+
+                return new ListExpression(elements);
+            }
 
             if (match(1, LEFT_PAREN)) {
                 Expression * inner_exp = expression();

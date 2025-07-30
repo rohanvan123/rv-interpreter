@@ -1,0 +1,11 @@
+LET, IDENT x, EQUALS, STRING "46", SEMI
+LET, IDENT y, EQUALS, STRING "77", SEMI
+LET, IDENT xy, EQUALS, IDENT x, PLUS, IDENT y, SEMI
+PRINT, LEFT_PAREN, IDENT xy, TIMES, INT 2, RIGHT_PAREN, SEMI
+=================================
+LetExp(x, ConstExp(StringConst "46"))
+LetExp(y, ConstExp(StringConst "77"))
+LetExp(xy, BinaryExp(IntPlusOp, VarExp(x), VarExp(y)))
+MonadicExp(Print, BinaryExp(IntTimesOp, VarExp(xy), ConstExp(IntConst 2)))
+=================================
+46774677

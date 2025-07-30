@@ -1,0 +1,4 @@
+let x = "46";
+let y = "77";
+let xy = x + y;
+print(xy * 2);

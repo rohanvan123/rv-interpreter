@@ -1,7 +1,2 @@
-let x = 10;
-if (true + true) {
-    print(i);
-    print(true);
-} else {
-    print(false);
-}
+let x = "hehe" * 4;
+print(x);

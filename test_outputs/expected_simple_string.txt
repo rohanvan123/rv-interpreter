@@ -1,0 +1,12 @@
+LET, IDENT x, EQUALS, STRING "hello", SEMI
+LET, IDENT y, EQUALS, STRING "yellow sir please", SEMI
+PRINT, LEFT_PAREN, IDENT x, RIGHT_PAREN, SEMI
+PRINT, LEFT_PAREN, IDENT y, RIGHT_PAREN, SEMI
+=================================
+LetExp(x, ConstExp(StringConst "hello"))
+LetExp(y, ConstExp(StringConst "yellow sir please"))
+MonadicExp(Print, VarExp(x))
+MonadicExp(Print, VarExp(y))
+=================================
+hello
+yellow sir please

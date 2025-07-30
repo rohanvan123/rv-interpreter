@@ -81,13 +81,13 @@ std::string string_of_expression(Expression* exp) {
             
             switch (const_exp->get_type()) {
                 case ConstType::BoolConst: {
-                    std::string bool_str = const_exp->value.bool_val ? "true" : "false";
+                    std::string bool_str = std::get<bool>(const_exp->value) ? "true" : "false";
                     return res + "BoolConst " + bool_str + ')';
                 }
-                case ConstType::IntConst: return res + "IntConst " + std::to_string(const_exp->value.int_val) + ')';
+                case ConstType::IntConst: return res + "IntConst " + std::to_string(std::get<int>(const_exp->value)) + ')';
                 case ConstType::StringConst: {
-                    std::string * s = const_exp->value.string_val;
-                    return  "StringConst " + *s + ')';
+                    std::string s = std::get<std::string>(const_exp->value);
+                    return  res + "StringConst \"" + s + "\")";
                 }
             };
             break;
@@ -216,6 +216,14 @@ std::string string_of_expression(Expression* exp) {
 
 }
 
+std::string multiply(std::string str, int m) {
+    std::string res = "";
+    while (m > 0) {
+        res += str;
+        m -= 1;
+    }
+    return res;
+}
 
 void cleanup_expressions(std::vector<Expression*> expressions) {
     for (Expression *e : expressions) {

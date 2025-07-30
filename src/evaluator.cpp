@@ -24,9 +24,9 @@ class Evaluator {
                     ConstExp * const_exp = dynamic_cast<ConstExp*>(exp);
                     
                     switch (const_exp->get_type()) {
-                        case ConstType::BoolConst: return const_exp->value.bool_val;
-                        case ConstType::IntConst: return const_exp->value.int_val;
-                        case ConstType::StringConst: return *const_exp->value.string_val;
+                        case ConstType::BoolConst: return const_exp->value;
+                        case ConstType::IntConst: return const_exp->value;
+                        case ConstType::StringConst: return const_exp->value;
                     };
                 }
                 case ExpressionType::VAR_EXP: {
@@ -113,6 +113,24 @@ class Evaluator {
                             return -1;
 
                         };
+                    } 
+                    else if (std::holds_alternative<std::string>(va1) && std::holds_alternative<std::string>(va2)) {
+                        std::string s1 = std::get<std::string>(va1);
+                        std::string s2 = std::get<std::string>(va2);
+                        switch (bin_exp->get_type()) {
+                            case BinaryOperator::IntPlusOp: return s1 + s2;
+                            default: throw std::runtime_error("Incorrect BinOp (string): " + std::to_string(int(bin_exp->get_type())));
+                            return -1;
+                        }
+                    } 
+                    else if (std::holds_alternative<std::string>(va1) && std::holds_alternative<int>(va2)) {
+                        std::string str = std::get<std::string>(va1);
+                        int multiplier = std::get<int>(va2);
+                        switch (bin_exp->get_type()) {
+                            case BinaryOperator::IntTimesOp: return multiply(str, multiplier);
+                            default: throw std::runtime_error("Incorrect BinOp (string, int): " + std::to_string(int(bin_exp->get_type())));
+                            // return -1;
+                        }
                     }
                 }
                 case ExpressionType::MON_EXP: {
@@ -121,7 +139,15 @@ class Evaluator {
                     AstValue val = evaluate_expression(mon_exp->get_right());
 
                     if (std::holds_alternative<std::string>(val)) {
-
+                        std::string s = std::get<std::string>(val);
+                        switch (mon_exp->get_type()) {
+                            case MonadicOperator::PrintOp: {
+                                std::cout << s << std::endl;
+                                return 0;
+                            }
+                            default: throw std::runtime_error("Incorrect MonOp (string): " + std::to_string(int(mon_exp->get_type())));
+                            return -1;
+                        }
                     } else if (std::holds_alternative<int>(val)) {
                         int i = std::get<int>(val);
                         switch (mon_exp->get_type()) {

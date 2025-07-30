@@ -26,13 +26,15 @@ class Expression {
         }
 };
 
-union Value {
-            int int_val;
-            bool bool_val;
-            std::string* string_val;
+// union Value {
+//             int int_val;
+//             bool bool_val;
+//             std::string string_val;
 
-            ~Value() {}
-        };
+//             ~Value() {}
+//         };
+
+using Value = std::variant<int, bool, std::string>;
 
 enum class ConstType {
     IntConst,
@@ -50,13 +52,13 @@ class ConstExp : public Expression {
         Value value;
 
         ConstExp(int c) : Expression(ExpressionType::CONST_EXP), const_type(ConstType::IntConst) {
-            value.int_val = c;
+            value = c;
         }
         ConstExp(bool c) : Expression(ExpressionType::CONST_EXP), const_type(ConstType::BoolConst) {
-            value.bool_val = c;
+            value = c;
         }
-        ConstExp(const std::string& c) : Expression(ExpressionType::CONST_EXP), const_type(ConstType::StringConst) {
-            value.string_val = new std::string(c);
+        ConstExp(std::string c) : Expression(ExpressionType::CONST_EXP), const_type(ConstType::StringConst) {
+            value = c;
         }
 
         ConstType get_type() const {
@@ -66,6 +68,13 @@ class ConstExp : public Expression {
         Value get_val() {
             return value;
         }
+
+        // ~ConstExp() {
+        //     if (value.string_val != nullptr) {
+        //         delete value.string_val;
+        //         value.string_val = nullptr;
+        //     }
+        // }
 };
 
 class VarExp : public Expression {

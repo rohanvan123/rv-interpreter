@@ -126,6 +126,7 @@ std::string token_to_string(Token token) {
 
         case IDENTIFIER: return "IDENT " + token.get_string();
         case INTEGER: return "INT " + token.get_string();
+        case STRING: return "STRING \"" + token.get_string() + "\"";
         case PRINT: return "PRINT";
         case LET: return "LET";
         case WHILE: return "WHILE";
@@ -203,6 +204,19 @@ class Lexer {
                     start += 1;
                     line += 1;
 
+                } else if (source[current] == '"') {
+                    // STRING
+                    current += 1;
+                    std::string lexeme = "";
+                    while (in_bounds() && source[current] != '"') {
+                        lexeme += source[current];
+                        current += 1;
+                    }
+                    Token new_token = Token(STRING, lexeme, line);
+                    tokens.push_back(new_token);
+
+                    current += 1;
+                    source += 1;
                 } else if (single_chars.find(source[current]) != single_chars.end()) {
                     Token new_token = Token(single_chars[source[current]], std::string(1, source[current]), line);
                     tokens.push_back(new_token);
@@ -222,6 +236,7 @@ class Lexer {
 
                     static const std::regex integer_regex("[0-9]+");
                     static const std::regex identifier_regex("[a-z][a-zA-Z0-9_]*");
+                    
                     
                     if (keyword_tokens.find(curr_string) != keyword_tokens.end()) { 
                         Token new_token = Token(keyword_tokens[curr_string], curr_string, line);

@@ -1,18 +1,28 @@
 LET, IDENT x, EQUALS, LBRACKET, INT 1, COMMA, INT 2, COMMA, INT 3, RBRACKET, SEMI
 PRINT, LEFT_PAREN, IDENT x, LBRACKET, INT 1, RBRACKET, RIGHT_PAREN, SEMI
+IDENT x, LBRACKET, INT 0, RBRACKET, EQUALS, IDENT x, LBRACKET, INT 1, RBRACKET, PLUS, IDENT x, LBRACKET, INT 2, RBRACKET, SEMI
 PRINT, LEFT_PAREN, IDENT x, PLUS, IDENT x, RIGHT_PAREN, SEMI
 LET, IDENT y, EQUALS, LBRACKET, IDENT x, COMMA, STRING "hello", COMMA, INT 3, PLUS, INT 4, TIMES, INT 2, RBRACKET, SEMI
 PRINT, LEFT_PAREN, IDENT y, TIMES, INT 2, RIGHT_PAREN, SEMI
 PRINT, LEFT_PAREN, IDENT y, LBRACKET, INT 3, MINUS, INT 3, RBRACKET, RIGHT_PAREN, SEMI
+LET, IDENT z, EQUALS, LBRACKET, IDENT x, COMMA, IDENT x, RBRACKET, SEMI
+PRINT, LEFT_PAREN, IDENT z, RIGHT_PAREN, SEMI
+PRINT, LEFT_PAREN, IDENT z, LBRACKET, INT 45, MOD, INT 3, RBRACKET, LBRACKET, INT 43, MOD, INT 2, RBRACKET, RIGHT_PAREN, SEMI
 =================================
 LetExp(x, ListExp([ConstExp(IntConst 1), ConstExp(IntConst 2), ConstExp(IntConst 3)]))
 MonadicExp(Print, ListAccessExp(VarExp(x), ConstExp(IntConst 1)))
+ReassignExp(x, ListModifyExp(VarExp(x), ConstExp(IntConst 0), BinaryExp(IntPlusOp, ListAccessExp(VarExp(x), ConstExp(IntConst 1)), ListAccessExp(VarExp(x), ConstExp(IntConst 2)))))
 MonadicExp(Print, BinaryExp(IntPlusOp, VarExp(x), VarExp(x)))
 LetExp(y, ListExp([VarExp(x), ConstExp(StringConst "hello"), BinaryExp(IntPlusOp, ConstExp(IntConst 3), BinaryExp(IntTimesOp, ConstExp(IntConst 4), ConstExp(IntConst 2)))]))
 MonadicExp(Print, BinaryExp(IntTimesOp, VarExp(y), ConstExp(IntConst 2)))
 MonadicExp(Print, ListAccessExp(VarExp(y), BinaryExp(IntMinusOp, ConstExp(IntConst 3), ConstExp(IntConst 3))))
+LetExp(z, ListExp([VarExp(x), VarExp(x)]))
+MonadicExp(Print, VarExp(z))
+MonadicExp(Print, ListAccessExp(ListAccessExp(VarExp(z), BinaryExp(ModOp, ConstExp(IntConst 45), ConstExp(IntConst 3))), BinaryExp(ModOp, ConstExp(IntConst 43), ConstExp(IntConst 2))))
 =================================
 2
-[1, 2, 3, 1, 2, 3]
-[[1, 2, 3], hello, 11, [1, 2, 3], hello, 11]
-[1, 2, 3]
+[5, 2, 3, 5, 2, 3]
+[[5, 2, 3], hello, 11, [5, 2, 3], hello, 11]
+[5, 2, 3]
+[[5, 2, 3], [5, 2, 3]]
+2

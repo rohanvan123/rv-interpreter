@@ -161,6 +161,16 @@ std::string string_of_expression(Expression* exp) {
 
             break;
         }
+        case ExpressionType::LIST_MODIFY_EXP: {
+            ListModifyExpression * list_assign_exp = dynamic_cast<ListModifyExpression*>(exp);
+            res += "ListModifyExp(";
+            res += string_of_expression(list_assign_exp->get_ident_exp()) + ", ";
+            res += string_of_expression(list_assign_exp->get_idx_exp()) + ", ";;
+            res += string_of_expression(list_assign_exp->get_exp());
+            res += ")";
+
+            break;
+        }
         case ExpressionType::BIN_EXP: {
             // std::cout << "bin" << std::endl;
             BinaryExpression * bin_exp = dynamic_cast<BinaryExpression*>(exp);

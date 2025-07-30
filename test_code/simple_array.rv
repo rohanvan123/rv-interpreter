@@ -1,6 +1,10 @@
 let x = [1, 2, 3];
 print(x[1]);
+x[0] = x[1] + x[2];
 print(x + x);
 let y = [x, "hello", 3 + 4 * 2];
 print(y * 2);
 print(y[3 - 3]);
+let z = [x, x];
+print(z);
+print(z[45 % 3][43 % 2]);

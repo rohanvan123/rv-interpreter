@@ -69,6 +69,16 @@ class Parser {
             return tokens;
         }
 
+        std::vector<Token> arr_idx_tokens(int &idx) {
+            std::vector<Token> tokens;
+            idx += 1; // LBRACKET
+            while (!match(idx, RBRACKET)) {
+                tokens.push_back(_tokens[idx]);
+                idx += 1;
+            }
+            return tokens;
+        }
+
         std::vector<Token> parse_condition(int &idx) {
             std::vector<Token> tokens;
             std::stack<std::string> stack;
@@ -109,6 +119,8 @@ class Parser {
                 return parse_let_expression(idx);
             } else if (match(idx, IDENTIFIER) && match(idx + 1, EQUALS)) {
                 return parse_reassign_expression(idx);
+            } else if (match(idx, IDENTIFIER) && match(idx + 1, LBRACKET)) {
+                return parse_list_assign_expression(idx);
             } else if (match(idx, IF)) {
                 return parse_if_expression(idx);
             } else if (match(idx, WHILE)) {
@@ -117,13 +129,12 @@ class Parser {
                 // for simple expressions, delegate directly to old parser
                 std::vector<Token> tokens;
                 tokens = tokens_from_idx(idx);
-                // std::cout << "after tokens " << idx << std::endl; 
-                // print_tokens(tokens);
 
                 if (parsing_condition) {
                     tokens.erase(tokens.begin());
                     tokens.pop_back();
                 }
+
                 ArithmeticParser expr_parser(tokens);
                 Expression *exp = expr_parser.parse();
                 idx += 1; // SEMI or LBRACE
@@ -151,6 +162,50 @@ class Parser {
             return new AssignmentExpression(ident_name, inner_exp, true);
         }
 
+        AssignmentExpression* parse_list_assign_expression(int &idx) {
+            const std::string ident_name = _tokens[idx].get_string(); // IDENT name
+            std::vector<Expression*> idx_exps;
+            idx += 1;
+
+            while (match(idx, LBRACKET)) {
+                std::vector<Token> idx_tokens = arr_idx_tokens(idx);
+                ArithmeticParser expr_parser(idx_tokens);
+                Expression * exp = expr_parser.parse();
+                idx_exps.push_back(exp);
+
+                if (!match(idx, RBRACKET)) throw std::runtime_error("Expected a ']'");
+                idx += 1; // RBRACKET
+            }
+
+            idx += 1; // EQUALS
+            std::vector<Token> idx_tokens = tokens_from_idx(idx);
+            ArithmeticParser expr_parser(idx_tokens);
+            Expression * inner_exp = expr_parser.parse();
+
+            idx += 1; // SEMI
+
+            int n = idx_exps.size();
+            Expression * curr = new VarExp(ident_name);
+            std::vector<Expression*> list_accesses;
+
+            list_accesses.push_back(curr);
+            for (int i = 0; i < n - 1; i++) {
+                curr = new ListAccessExpression(curr->clone(), idx_exps[i]);
+                list_accesses.push_back(curr);
+            }
+
+            // arr[0][0] -> [arr, arr[0]]
+            curr = new ListModifyExpression(list_accesses[n - 1], idx_exps[n - 1], inner_exp);
+            
+            for (int i = n - 2; i >= 0; i--) {
+                Expression * prev = curr;
+                curr = new ListModifyExpression(list_accesses[i], idx_exps[i]->clone(), curr->clone());
+                delete prev;
+            }
+
+            return new AssignmentExpression(ident_name, curr, true);
+        }
+
         WhileExpression* parse_while_expression(int &idx) {
             // std::cout << "parse_while_expression" << std::endl;
             idx += 1; // WHILE
@@ -169,7 +224,7 @@ class Parser {
         IfExpression* parse_if_expression(int &idx) {
             // std::cout << "parse_if_expression " << idx << std::endl;
             idx += 1; // IF
-            // need to perform valid parenthesis to get string
+
             Expression * cond = parse_expression(idx, true);
             
 

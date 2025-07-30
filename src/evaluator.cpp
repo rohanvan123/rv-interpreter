@@ -2,7 +2,6 @@
 #include <variant>
 #include <vector>
 #include "expression.h"
-
 // using AstValue = std::variant<int, bool, std::string>;
 using Environment = std::map<std::string, Value>;
 
@@ -103,6 +102,24 @@ class Evaluator {
 
                         return Value(arr[idx]);
 
+                    }
+                }
+                case ExpressionType::LIST_MODIFY_EXP: {
+                    ListModifyExpression * access_exp = dynamic_cast<ListModifyExpression*>(exp);
+                    Value va_list = evaluate_expression(access_exp->get_ident_exp());
+                    Value va1 = evaluate_expression(access_exp->get_idx_exp());
+                    Value va2 = evaluate_expression(access_exp->get_exp());
+                    
+                    if (std::holds_alternative<std::vector<Value>>(va_list.data) && std::holds_alternative<int>(va1.data)) {
+                        std::vector<Value>& arr = std::get<std::vector<Value>>(va_list.data);
+                        int idx = std::get<int>(va1.data);
+
+                        if (idx < 0 || idx >= arr.size()) {
+                            throw std::runtime_error("Index out of bounds");
+                        }
+                        
+                        arr[idx] = va2;
+                        return Value(arr);
                     }
                 }
                 case ExpressionType::BIN_EXP: {

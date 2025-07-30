@@ -6,7 +6,7 @@ class TestCppProgram(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Compile once before all tests
-        result = subprocess.run("g++ -std=c++20 src/main.cpp -o bin/test -w", shell=True, text=True, capture_output=True)
+        result = subprocess.run("g++ -std=c++20 src/main.cpp -o bin/test", shell=True, text=True, capture_output=True)
         if result.returncode != 0:
             raise RuntimeError("Compilation failed:\n" + result.stderr)
 
@@ -52,6 +52,14 @@ class TestCppProgram(unittest.TestCase):
     
     def test_case_8(self):
         test_name = "complex_while"
+        self.run_test_case(f"test_code/{test_name}.rv", f"test_outputs/expected_{test_name}.txt", test_name)
+    
+    def test_case_9(self):
+        test_name = "simple_string"
+        self.run_test_case(f"test_code/{test_name}.rv", f"test_outputs/expected_{test_name}.txt", test_name)
+
+    def test_case_10(self):
+        test_name = "complex_string"
         self.run_test_case(f"test_code/{test_name}.rv", f"test_outputs/expected_{test_name}.txt", test_name)
 
 if __name__ == '__main__':

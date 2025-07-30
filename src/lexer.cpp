@@ -31,6 +31,8 @@ enum TokenType {
     MOD,
     RBRACE,
     LBRACE,
+    RBRACKET,
+    LBRACKET,
     GT,
     LT,
     COMMA,
@@ -113,6 +115,8 @@ std::string token_to_string(Token token) {
         case LT: return "LT";
         case COMMA: return "COMMA";
         case END_BLOCK: return "END_BLOCK";
+        case LBRACKET: return "LBRACKET";
+        case RBRACKET: return "RBRACKET";
 
         case NEQ: return "NEQ";
         case LEQ: return "LEQ";
@@ -216,7 +220,7 @@ class Lexer {
                     tokens.push_back(new_token);
 
                     current += 1;
-                    source += 1;
+                    start += 1;
                 } else if (single_chars.find(source[current]) != single_chars.end()) {
                     Token new_token = Token(single_chars[source[current]], std::string(1, source[current]), line);
                     tokens.push_back(new_token);
@@ -275,7 +279,8 @@ class Lexer {
             {'}', RBRACE},
             {',', COMMA},
             {'$', END_BLOCK},
-            
+            {'[', LBRACKET},
+            {']', RBRACKET}
         };
 
         std::map<std::string, TokenType> keyword_tokens = {

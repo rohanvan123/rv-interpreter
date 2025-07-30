@@ -1,0 +1,18 @@
+LET, IDENT x, EQUALS, LBRACKET, INT 1, COMMA, INT 2, COMMA, INT 3, RBRACKET, SEMI
+PRINT, LEFT_PAREN, IDENT x, LBRACKET, INT 1, RBRACKET, RIGHT_PAREN, SEMI
+PRINT, LEFT_PAREN, IDENT x, PLUS, IDENT x, RIGHT_PAREN, SEMI
+LET, IDENT y, EQUALS, LBRACKET, IDENT x, COMMA, STRING "hello", COMMA, INT 3, PLUS, INT 4, TIMES, INT 2, RBRACKET, SEMI
+PRINT, LEFT_PAREN, IDENT y, TIMES, INT 2, RIGHT_PAREN, SEMI
+PRINT, LEFT_PAREN, IDENT y, LBRACKET, INT 3, MINUS, INT 3, RBRACKET, RIGHT_PAREN, SEMI
+=================================
+LetExp(x, ListExp([ConstExp(IntConst 1), ConstExp(IntConst 2), ConstExp(IntConst 3)]))
+MonadicExp(Print, ListAccessExp(VarExp(x), ConstExp(IntConst 1)))
+MonadicExp(Print, BinaryExp(IntPlusOp, VarExp(x), VarExp(x)))
+LetExp(y, ListExp([VarExp(x), ConstExp(StringConst "hello"), BinaryExp(IntPlusOp, ConstExp(IntConst 3), BinaryExp(IntTimesOp, ConstExp(IntConst 4), ConstExp(IntConst 2)))]))
+MonadicExp(Print, BinaryExp(IntTimesOp, VarExp(y), ConstExp(IntConst 2)))
+MonadicExp(Print, ListAccessExp(VarExp(y), BinaryExp(IntMinusOp, ConstExp(IntConst 3), ConstExp(IntConst 3))))
+=================================
+2
+[1, 2, 3, 1, 2, 3]
+[[1, 2, 3], hello, 11, [1, 2, 3], hello, 11]
+[1, 2, 3]

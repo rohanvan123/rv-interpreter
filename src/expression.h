@@ -11,6 +11,8 @@ enum class ExpressionType {
     MON_EXP,
     LET_EXP,
     WHILE_EXP,
+    LIST_EXP,
+    LIST_ACCESS_EXP
 };
 
 class Expression {
@@ -34,7 +36,16 @@ class Expression {
 //             ~Value() {}
 //         };
 
-using Value = std::variant<int, bool, std::string>;
+class Value;
+
+using ValueData = std::variant<int, bool, std::string, std::vector<Value>>;
+
+class Value {
+    public:
+        ValueData data;
+        Value() = default;
+        Value(ValueData vd): data(vd) {}
+};
 
 enum class ConstType {
     IntConst,
@@ -52,13 +63,13 @@ class ConstExp : public Expression {
         Value value;
 
         ConstExp(int c) : Expression(ExpressionType::CONST_EXP), const_type(ConstType::IntConst) {
-            value = c;
+            value.data = c;
         }
         ConstExp(bool c) : Expression(ExpressionType::CONST_EXP), const_type(ConstType::BoolConst) {
-            value = c;
+            value.data = c;
         }
         ConstExp(std::string c) : Expression(ExpressionType::CONST_EXP), const_type(ConstType::StringConst) {
-            value = c;
+            value.data = c;
         }
 
         ConstType get_type() const {
@@ -88,7 +99,7 @@ class VarExp : public Expression {
 enum class MonadicOperator {
     NotOp,
     IntNegOp,
-    PrintOp
+    PrintOp    
 };
 
 class MonadicExpression : public Expression {
@@ -210,4 +221,39 @@ class WhileExpression : public Expression {
             body_expressions.clear();
         }
 
+};
+
+class ListExpression : public Expression {
+    private:
+        std::vector<Expression*> elements;
+
+    public:
+        ListExpression(std::vector<Expression*> exps):
+            Expression(ExpressionType::LIST_EXP), elements(exps) {}
+        std::vector<Expression*> get_elements() { return elements; }
+        Expression * access_element(int idx) { return elements.at(idx); }
+        ~ListExpression() {
+            for (Expression* expr : elements) {
+                delete expr;
+            }
+            elements.clear();
+        }
+};
+
+class ListAccessExpression : public Expression {
+    private:
+        Expression * ident_exp;
+        Expression * idx_exp;
+
+    public:
+        ListAccessExpression(Expression * exp1, Expression * exp2) : Expression(ExpressionType::LIST_ACCESS_EXP), ident_exp(exp1), idx_exp(exp2) {} 
+        Expression * get_arr_exp() { return ident_exp; }
+        Expression * get_idx_exp() { return idx_exp; }
+        ~ListAccessExpression() {
+            delete ident_exp;
+            ident_exp = nullptr;
+
+            delete idx_exp;
+            idx_exp = nullptr;
+        }
 };

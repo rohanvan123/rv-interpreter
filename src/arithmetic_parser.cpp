@@ -127,8 +127,38 @@ class ArithmeticParser {
             // std::cout << "atomic - " << current << std::endl;
             if (match(1, STRING)) return new ConstExp(previous().get_string());
             // std::cout << "atomic - " << current << std::endl;
-            if (match(1, IDENTIFIER)) return new VarExp(previous().get_string());
+            if (match(1, IDENTIFIER)) {
+                Expression* ident_exp = new VarExp(previous().get_string());
+                if (match(1, LBRACKET)) {
+                    Expression * idx_exp = expression();
+
+                    if (!match(1, RBRACKET)) {
+                        throw std::runtime_error("Expected a ']'");
+                    }
+
+                    return new ListAccessExpression(ident_exp, idx_exp);
+                } else {
+                    return ident_exp;
+                }
+            }
             // std::cout << "atomic - " << current << std::endl;
+
+            if (match(1, LBRACKET)) {
+                std::vector<Expression*> elements;
+
+                if (!check(RBRACKET)) {
+                    do {
+                        Expression * elem_exp = expression();
+                        elements.push_back(elem_exp);
+                    } while (match(1, COMMA));
+                }
+
+                if (!match(1, RBRACKET)) {
+                    throw std::runtime_error("Expected a ']'");
+                }
+
+                return new ListExpression(elements);
+            }
 
             if (match(1, LEFT_PAREN)) {
                 Expression * inner_exp = expression();

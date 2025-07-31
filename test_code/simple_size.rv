@@ -1,0 +1,14 @@
+let i = 0;
+let x = [[0, 0]] * 5;
+print(x);
+print(size(x));
+print(size(x[0]));
+while (i < size(x)) {
+    print(x[i]);
+    i = i + 1;
+}
+
+let y = "hello good sir";
+let x = "goodbye my friend";
+print(size(x + y));
+print(size(x + y) == size(x) + size(y));

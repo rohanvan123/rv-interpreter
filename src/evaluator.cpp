@@ -205,6 +205,7 @@ class Evaluator {
                                 std::cout << s << std::endl;
                                 return Value();
                             }
+                            case MonadicOperator::SizeOp: return Value(static_cast<int>(s.size()));
                             default: throw std::runtime_error("Incorrect MonOp (string): " + std::to_string(int(mon_exp->get_type())));
                         }
                     } else if (std::holds_alternative<int>(val.data)) {
@@ -238,6 +239,7 @@ class Evaluator {
                                 std::cout << "\n";
                                 return Value();
                             }
+                            case MonadicOperator::SizeOp: return Value(static_cast<int>(arr.size()));
                             default: throw std::runtime_error("Incorrect MonOp (list): " + std::to_string(int(mon_exp->get_type())));
                         };
                     }

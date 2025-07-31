@@ -65,6 +65,10 @@ class TestCppProgram(unittest.TestCase):
     def test_case_11(self):
         test_name = "simple_array"
         self.run_test_case(f"test_code/{test_name}.rv", f"test_outputs/expected_{test_name}.txt", test_name)
+    
+    def test_case_12(self):
+        test_name = "simple_size"
+        self.run_test_case(f"test_code/{test_name}.rv", f"test_outputs/expected_{test_name}.txt", test_name)
 
 if __name__ == '__main__':
     unittest.main()

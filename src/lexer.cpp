@@ -55,6 +55,7 @@ enum TokenType {
     TRUE,
     FALSE,
     PRINT,
+    SIZE,
     LET,
     WHILE,
     IF,
@@ -132,6 +133,7 @@ std::string token_to_string(Token token) {
         case INTEGER: return "INT " + token.get_string();
         case STRING: return "STRING \"" + token.get_string() + "\"";
         case PRINT: return "PRINT";
+        case SIZE: return "SIZE";
         case LET: return "LET";
         case WHILE: return "WHILE";
         case IF: return "IF";
@@ -290,6 +292,7 @@ class Lexer {
             {"let", LET},
             {"while", WHILE},
             {"print", PRINT},
+            {"size", SIZE},
             {"<=", LEQ},
             {">=", GEQ},
             {"!=", NEQ},

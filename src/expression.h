@@ -132,6 +132,7 @@ enum class BinaryOperator {
     IntMinusOp,
     IntDivOp,
     IntTimesOp,
+    IntPowOp,
     ModOp,  
     EqualityOp,
     GtOp,

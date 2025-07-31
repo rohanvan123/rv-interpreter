@@ -29,6 +29,7 @@ enum TokenType {
     MINUS,
     DIVIDES,
     MOD,
+    POW,
     RBRACE,
     LBRACE,
     RBRACKET,
@@ -45,6 +46,11 @@ enum TokenType {
     EQUALITY,
     AND,
     OR,
+    PLUS_EQUALS,
+    MINUS_EQUALS,
+    TIMES_EQUALS,
+    DIVIDES_EQUALS,
+    MOD_EQUALS,
 
     // Literals
     IDENTIFIER,
@@ -109,6 +115,12 @@ std::string token_to_string(Token token) {
         case MINUS: return "MINUS";
         case TIMES: return "TIMES";
         case DIVIDES: return "DIVIDES";
+        case POW: return "POW";
+        case PLUS_EQUALS: return "PLUS_EQUALS";
+        case MINUS_EQUALS: return "MINUS_EQUALS";
+        case TIMES_EQUALS: return "TIMES_EQUALS";
+        case DIVIDES_EQUALS: return "PLUS_EQUALS";
+        case MOD_EQUALS: return "MOD_EQUALS";
         case MOD: return "MOD";
         case LBRACE: return "LBRACE";
         case RBRACE: return "RBRACE";
@@ -241,6 +253,7 @@ class Lexer {
                     }
 
                     static const std::regex integer_regex("[0-9]+");
+                    static const std::regex neg_integer_regex("-[0-9]+");
                     static const std::regex identifier_regex("[a-z][a-zA-Z0-9_]*");
                     
                     
@@ -249,6 +262,11 @@ class Lexer {
                         tokens.push_back(new_token);
                     } else if (std::regex_match(curr_string, integer_regex)) {
                         Token new_token = Token(INTEGER, curr_string, line);
+                        tokens.push_back(new_token);
+                    } else if (std::regex_match(curr_string, neg_integer_regex)) {
+                        Token neg_token = Token(MINUS, "-", line);
+                        Token new_token = Token(INTEGER, curr_string.substr(1), line);
+                        tokens.push_back(neg_token);
                         tokens.push_back(new_token);
                     } else if (std::regex_match(curr_string, identifier_regex)) {
                         Token new_token = Token(IDENTIFIER, curr_string, line);
@@ -272,11 +290,6 @@ class Lexer {
             {';', SEMI},
             {'(', LEFT_PAREN},
             {')', RIGHT_PAREN},
-            {'+', PLUS},
-            {'*', TIMES},
-            {'-', MINUS},
-            {'/', DIVIDES},
-            {'%', MOD},
             {'{', LBRACE},
             {'}', RBRACE},
             {',', COMMA},
@@ -289,11 +302,21 @@ class Lexer {
             {"<", LT},
             {">", GT},
             {"=", EQUALS},
+            {"+", PLUS},
+            {"*", TIMES},
+            {"-", MINUS},
+            {"/", DIVIDES},
+            {"%", MOD},
             {"let", LET},
             {"while", WHILE},
             {"print", PRINT},
             {"size", SIZE},
-            {"<=", LEQ},
+            {"+=", PLUS_EQUALS},
+            {"-=", MINUS_EQUALS},
+            {"*=", TIMES_EQUALS},
+            {"/=", DIVIDES_EQUALS},
+            {"^", POW},
+            {"%=", MOD_EQUALS},
             {">=", GEQ},
             {"!=", NEQ},
             {"==", EQUALITY},

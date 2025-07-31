@@ -1,8 +1,10 @@
 # RV Interpreter
 
-A C++ interpreter for a custom Python-like language called **RV**. This project includes a **lexer**, **parser**, and **evaluator**—all written in C++. A **Flask backend** can be run as a server to handle interpretation requests, allowing a separate frontend visualizer to interact with it.
+A C++ interpreter for a custom Python-like language called **RV**. This project includes a **lexer**, **parser**, and **evaluator**—all written in C++. A **Flask backend** can be run as a server to handle interpretation requests, allowing a separate [frontend](https://github.com/rohanvan123/rv-interpreter-frontend) visualizer to interact with it.
 
----
+## Live Deployment - [Try it Out!](https://rv-interpreter-frontend.vercel.app/)
+
+This project is currently hosted live with the Next.js fronted hosted on **Vercel** and the Flask backend on **Render**. Initial requests may be very slow because it's based on the Render's free tier.
 
 ## 🧱 Architecture
 
@@ -14,8 +16,6 @@ A C++ interpreter for a custom Python-like language called **RV**. This project 
 - ⚙️ C++ implementation of lexer, parser, and evaluator
 - 🌐 Flask-based backend to expose API endpoints for the interpreter
 - 📊 Compatible with a React-based frontend visualizer
-
----
 
 ## 🚀 Getting Started
 

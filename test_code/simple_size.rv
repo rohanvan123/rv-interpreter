@@ -9,6 +9,11 @@ while (i < size(x)) {
 }
 
 let y = "hello good sir";
-let x = "goodbye my friend";
+x = "goodbye my friend";
 print(size(x + y));
 print(size(x + y) == size(x) + size(y));
+i = 0;
+while (i < 4) {
+    print(x[i]);
+    i = i + 1;
+}

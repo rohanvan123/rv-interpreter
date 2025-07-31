@@ -1,0 +1,46 @@
+LET, IDENT i, EQUALS, INT 0, SEMI
+LET, IDENT x, EQUALS, LBRACKET, LBRACKET, INT 0, COMMA, INT 0, RBRACKET, RBRACKET, TIMES, INT 5, SEMI
+PRINT, LEFT_PAREN, IDENT x, RIGHT_PAREN, SEMI
+PRINT, LEFT_PAREN, SIZE, LEFT_PAREN, IDENT x, RIGHT_PAREN, RIGHT_PAREN, SEMI
+PRINT, LEFT_PAREN, SIZE, LEFT_PAREN, IDENT x, LBRACKET, INT 0, RBRACKET, RIGHT_PAREN, RIGHT_PAREN, SEMI
+WHILE, LEFT_PAREN, IDENT i, LT, SIZE, LEFT_PAREN, IDENT x, RIGHT_PAREN, RIGHT_PAREN, LBRACE
+PRINT, LEFT_PAREN, IDENT x, LBRACKET, IDENT i, RBRACKET, RIGHT_PAREN, SEMI
+IDENT i, EQUALS, IDENT i, PLUS, INT 1, SEMI
+RBRACE
+LET, IDENT y, EQUALS, STRING "hello good sir", SEMI
+IDENT x, EQUALS, STRING "goodbye my friend", SEMI
+PRINT, LEFT_PAREN, SIZE, LEFT_PAREN, IDENT x, PLUS, IDENT y, RIGHT_PAREN, RIGHT_PAREN, SEMI
+PRINT, LEFT_PAREN, SIZE, LEFT_PAREN, IDENT x, PLUS, IDENT y, RIGHT_PAREN, EQUALITY, SIZE, LEFT_PAREN, IDENT x, RIGHT_PAREN, PLUS, SIZE, LEFT_PAREN, IDENT y, RIGHT_PAREN, RIGHT_PAREN, SEMI
+IDENT i, EQUALS, INT 0, SEMI
+WHILE, LEFT_PAREN, IDENT i, LT, INT 4, RIGHT_PAREN, LBRACE
+PRINT, LEFT_PAREN, IDENT x, LBRACKET, IDENT i, RBRACKET, RIGHT_PAREN, SEMI
+IDENT i, EQUALS, IDENT i, PLUS, INT 1, SEMI
+RBRACE
+=================================
+LetExp(i, ConstExp(IntConst 0))
+LetExp(x, BinaryExp(IntTimesOp, ListExp([ListExp([ConstExp(IntConst 0), ConstExp(IntConst 0)])]), ConstExp(IntConst 5)))
+MonadicExp(Print, VarExp(x))
+MonadicExp(Print, MonadicExp(Size, VarExp(x)))
+MonadicExp(Print, MonadicExp(Size, ListAccessExp(VarExp(x), ConstExp(IntConst 0))))
+WhileExp(BinaryExp(LtOp, VarExp(i), MonadicExp(Size, VarExp(x))), [MonadicExp(Print, ListAccessExp(VarExp(x), VarExp(i))), ReassignExp(i, BinaryExp(IntPlusOp, VarExp(i), ConstExp(IntConst 1)))])
+LetExp(y, ConstExp(StringConst "hello good sir"))
+ReassignExp(x, ConstExp(StringConst "goodbye my friend"))
+MonadicExp(Print, MonadicExp(Size, BinaryExp(IntPlusOp, VarExp(x), VarExp(y))))
+MonadicExp(Print, BinaryExp(EqualsOp, MonadicExp(Size, BinaryExp(IntPlusOp, VarExp(x), VarExp(y))), BinaryExp(IntPlusOp, MonadicExp(Size, VarExp(x)), MonadicExp(Size, VarExp(y)))))
+ReassignExp(i, ConstExp(IntConst 0))
+WhileExp(BinaryExp(LtOp, VarExp(i), ConstExp(IntConst 4)), [MonadicExp(Print, ListAccessExp(VarExp(x), VarExp(i))), ReassignExp(i, BinaryExp(IntPlusOp, VarExp(i), ConstExp(IntConst 1)))])
+=================================
+[[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+5
+2
+[0, 0]
+[0, 0]
+[0, 0]
+[0, 0]
+[0, 0]
+31
+true
+g
+o
+o
+d

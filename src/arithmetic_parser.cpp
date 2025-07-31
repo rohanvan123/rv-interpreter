@@ -101,13 +101,14 @@ class ArithmeticParser {
 
         Expression * unary() {
             // std::cout << "unary - " << current << std::endl;
-            if (match(2, PRINT, MINUS)) {
+            if (match(3, PRINT, MINUS, SIZE)) {
                 Token op = previous();
                 Expression * right = unary();
 
                 switch (op.get_type()) {
                     case PRINT: return new MonadicExpression(MonadicOperator::PrintOp, right);
                     case MINUS: return new MonadicExpression(MonadicOperator::IntNegOp, right);
+                    case SIZE: return new MonadicExpression(MonadicOperator::SizeOp, right);
                     default: return nullptr;
                 };
             }

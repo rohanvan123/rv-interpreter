@@ -226,6 +226,9 @@ std::string string_of_expression(Expression* exp) {
                 case MonadicOperator::PrintOp: 
                     res += "Print, ";
                     break;
+                case MonadicOperator::SizeOp: 
+                    res += "Size, ";
+                    break;
                 case MonadicOperator::NotOp:
                     res += "NotOp, ";
                     break;

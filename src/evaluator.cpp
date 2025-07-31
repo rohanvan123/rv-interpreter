@@ -102,6 +102,16 @@ class Evaluator {
 
                         return Value(arr[idx]);
 
+                    } else if (std::holds_alternative<string>(va1.data) && std::holds_alternative<int>(va2.data)) {
+                        std::string str = std::get<string>(va1.data);
+                        int idx = std::get<int>(va2.data);
+
+                        if (idx < 0 || idx >= str.size()) {
+                            throw std::runtime_error("Index out of bounds");
+                        }
+
+                        std::string return_char = std::string(1, str[idx]);
+                        return Value(return_char);
                     }
                 }
                 case ExpressionType::LIST_MODIFY_EXP: {
@@ -205,6 +215,7 @@ class Evaluator {
                                 std::cout << s << std::endl;
                                 return Value();
                             }
+                            case MonadicOperator::SizeOp: return Value(static_cast<int>(s.size()));
                             default: throw std::runtime_error("Incorrect MonOp (string): " + std::to_string(int(mon_exp->get_type())));
                         }
                     } else if (std::holds_alternative<int>(val.data)) {
@@ -238,6 +249,7 @@ class Evaluator {
                                 std::cout << "\n";
                                 return Value();
                             }
+                            case MonadicOperator::SizeOp: return Value(static_cast<int>(arr.size()));
                             default: throw std::runtime_error("Incorrect MonOp (list): " + std::to_string(int(mon_exp->get_type())));
                         };
                     }

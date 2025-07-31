@@ -105,7 +105,8 @@ class VarExp : public Expression {
 enum class MonadicOperator {
     NotOp,
     IntNegOp,
-    PrintOp    
+    PrintOp,
+    SizeOp    
 };
 
 class MonadicExpression : public Expression {

@@ -82,15 +82,31 @@ class ArithmeticParser {
 
         Expression * factor() {
             // std::cout << "factor - " << current << std::endl;
-            Expression * left = unary();
+            Expression * left = exponent();
             while (match(3, TIMES, DIVIDES, MOD)) {
                 Token op = previous();
-                Expression * right = unary();
+                Expression * right = exponent();
 
                 switch (op.get_type()) {
                     case TIMES: left = new BinaryExpression(BinaryOperator::IntTimesOp, left, right); break;
                     case DIVIDES: left =  new BinaryExpression(BinaryOperator::IntDivOp, left, right); break;
                     case MOD: left = new BinaryExpression(BinaryOperator::ModOp, left, right); break;
+                    default: return nullptr;
+                };
+                
+            }
+
+            return left;
+        }
+
+        Expression * exponent() {
+            Expression * left = unary();
+            while (match(1, POW)) {
+                Token op = previous();
+                Expression * right = unary();
+
+                switch (op.get_type()) {
+                    case POW: left = new BinaryExpression(BinaryOperator::IntPowOp, left, right); break;
                     default: return nullptr;
                 };
                 
@@ -117,21 +133,16 @@ class ArithmeticParser {
         }
 
         Expression * atomic() {
-            // std::cout << "atomic - " << current << std::endl;
             if (match(1, FALSE)) return new ConstExp(false);
-            // std::cout << "atomic - " << current << std::endl;
             if (match(1, TRUE)) return new ConstExp(true);
-            // std::cout << "atomic - " << current << std::endl;
-            if (match(1, INTEGER)) {
-                return new ConstExp(stoi(previous().get_string()));
-            }
-            // std::cout << "atomic - " << current << std::endl;
+            if (match(1, INTEGER)) return new ConstExp(stoi(previous().get_string()));
             if (match(1, STRING)) return new ConstExp(previous().get_string());
-            // std::cout << "atomic - " << current << std::endl;
+
             if (match(1, IDENTIFIER)) {
                 Expression* ident_exp = new VarExp(previous().get_string());
                 
                 if (check(LBRACKET)) {
+                    // LIST ACCESS
                     std::vector<Expression*> idx_exps;
 
                     while (match(1, LBRACKET)) {
@@ -149,12 +160,13 @@ class ArithmeticParser {
 
                     return curr;
                 } else {
+                    // VARIABLE
                     return ident_exp;
                 }
             }
-            // std::cout << "atomic - " << current << std::endl;
 
             if (match(1, LBRACKET)) {
+                // LISTING of objects
                 std::vector<Expression*> elements;
 
                 if (!check(RBRACKET)) {
@@ -171,6 +183,7 @@ class ArithmeticParser {
                 return new ListExpression(elements);
             }
 
+            // Ensures parenthesis are given highest priority
             if (match(1, LEFT_PAREN)) {
                 Expression * inner_exp = expression();
                 if (match(1, RIGHT_PAREN)) {
@@ -180,25 +193,6 @@ class ArithmeticParser {
 
             return nullptr;
         }
-
-        // Expression * if_expression() {
-        //     // std::cout << "if-statment - " << current << std::endl;
-        //     advance(); // left paren 
-        //     Expression * conditional = expression();
-        //     advance(); // right paren
-        //     advance(); // left brace
-        //     Expression * if_exp = expression();
-        //     // std::cout << current << std::endl;
-        //     advance(); // right brace
-        //     advance(); // else 
-        //     advance();
-        //     advance(); // left brace
-        //     // std::cout << current << std::endl;
-        //     Expression * else_exp = expression();
-        //     advance(); // right brace
-        //     advance();
-        //     return new IfExpression(conditional, if_exp, else_exp);
-        // }
 
     private:
         size_t current;

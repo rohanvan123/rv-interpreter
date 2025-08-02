@@ -1,6 +1,7 @@
 #include <map>
 #include <variant>
 #include <vector>
+#include <cmath>
 #include "expression.h"
 // using AstValue = std::variant<int, bool, std::string>;
 using Environment = std::map<std::string, Value>;
@@ -145,6 +146,10 @@ class Evaluator {
                             case BinaryOperator::IntMinusOp: return Value(val1 - val2);
                             case BinaryOperator::IntTimesOp: return Value(val1 * val2);
                             case BinaryOperator::IntDivOp: return Value(val1 / val2);
+                            case BinaryOperator::IntPowOp: {
+                                int res = static_cast<int>(std::pow(val1, val2));
+                                return Value(res);
+                            }
                             case BinaryOperator::ModOp: return Value(val1 % val2);
                             case BinaryOperator::GtOp: return Value(val1 > val2);
                             case BinaryOperator::GteOp: return Value(val1 >= val2);

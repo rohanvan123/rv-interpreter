@@ -2,6 +2,7 @@
 #include "expression.h"
 #include "utils.cpp"
 #include <stack>
+#include <set>
 
 using enum TokenType;
 
@@ -49,6 +50,14 @@ void print_blocks(const TokenBlock& block, int indent) {
     }
 }
 
+std::set<TokenType> assignment_op_tokens = {PLUS_EQUALS, TIMES_EQUALS, MINUS_EQUALS, DIVIDES_EQUALS, MOD_EQUALS};
+std::map<TokenType, BinaryOperator> token_to_binop = {
+    {PLUS_EQUALS, BinaryOperator::IntPlusOp},
+    {MINUS_EQUALS, BinaryOperator::IntMinusOp},
+    {TIMES_EQUALS, BinaryOperator::IntTimesOp},
+    {DIVIDES_EQUALS, BinaryOperator::IntDivOp},
+    {MOD_EQUALS, BinaryOperator::ModOp},
+};
 
 class Parser {
     public:
@@ -121,7 +130,10 @@ class Parser {
                 return parse_reassign_expression(idx);
             } else if (match(idx, IDENTIFIER) && match(idx + 1, LBRACKET)) {
                 return parse_list_assign_expression(idx);
-            } else if (match(idx, IF)) {
+            } else if (match(idx, IDENTIFIER) && match(idx + 1, assignment_op_tokens)) {
+                return parse_assign_op_expression(idx);
+            } 
+            else if (match(idx, IF)) {
                 return parse_if_expression(idx);
             } else if (match(idx, WHILE)) {
                 return parse_while_expression(idx);
@@ -172,6 +184,27 @@ class Parser {
 
             return new AssignmentExpression(ident_name, inner_exp, true);
         }
+
+        AssignmentExpression* parse_assign_op_expression(int &idx) {
+            const std::string ident_name = _tokens[idx].get_string(); // IDENT name
+            idx += 1;
+            TokenType op_token = _tokens[idx].get_type();
+            idx += 1; // OP_EQUALS
+
+            std::vector<Token> tokens;
+            tokens = tokens_from_idx(idx);
+            ArithmeticParser expr_parser(tokens);
+            Expression* inner_exp = expr_parser.parse();
+
+            idx += 1; // SEMI
+
+            // wrap in bin exp based on operator
+            Expression* var_exp = new VarExp(ident_name);
+            Expression* final_exp = new BinaryExpression(token_to_binop[op_token], var_exp, inner_exp);
+
+            return new AssignmentExpression(ident_name, final_exp, true);
+        }
+
 
         AssignmentExpression* parse_list_assign_expression(int &idx) {
             const std::string ident_name = _tokens[idx].get_string(); // IDENT name
@@ -264,5 +297,9 @@ class Parser {
 
         bool match(int idx, TokenType type) {
             return _tokens[idx].get_type() == type;
+        }
+
+        bool match(int idx, std::set<TokenType> types) {
+            return types.find(_tokens[idx].get_type()) != types.end();
         }
 };

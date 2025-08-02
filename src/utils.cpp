@@ -180,6 +180,7 @@ std::string string_of_expression(Expression* exp) {
                 {BinaryOperator::IntMinusOp, "IntMinusOp, "},
                 {BinaryOperator::IntTimesOp, "IntTimesOp, "},
                 {BinaryOperator::IntDivOp, "IntDivOp, "},
+                {BinaryOperator::IntPowOp, "PowOp, "},
                 {BinaryOperator::ModOp, "ModOp, "},
                 {BinaryOperator::GtOp, "GtOp, "},
                 {BinaryOperator::GteOp, "GteOp, "},

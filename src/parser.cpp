@@ -137,6 +137,8 @@ class Parser {
                 return parse_if_expression(idx);
             } else if (match(idx, WHILE)) {
                 return parse_while_expression(idx);
+            } else if (match(idx, FUNCTION)) {
+                return parse_function_expression(idx);
             } else {
                 // for simple expressions, delegate directly to old parser
                 std::vector<Token> tokens;
@@ -290,6 +292,40 @@ class Parser {
             idx += 1; // RBRACE
 
             return new IfExpression(cond, if_expressions, else_expressions);
+        }
+
+        FunctionAssignmentExpression* parse_function_expression(int &idx) {
+            idx += 1; // Function
+            const std::string func_name = _tokens[idx].get_string();
+            idx += 1; // name
+            idx += 1; // LEFT_PAREN
+
+            std::vector<std::string> args;
+
+            while (!match(idx, LBRACE)) {
+                if (match(idx, IDENTIFIER)) {
+                    Token tok = _tokens[idx];
+                    args.push_back(tok.get_string());
+                }
+                idx += 1;
+            }
+
+            idx += 1; // RBRACE
+
+            std::vector<FuncBodyExpression*> body_expressions;
+            while (!match(idx, RBRACE)) {
+                bool returnable = false;
+                if (match(idx, RETURN)) {
+                    returnable = true;
+                    idx += 1;
+                }
+                FuncBodyExpression * body_exp = new FuncBodyExpression (parse_expression(idx, false), returnable);
+                body_expressions.push_back(body_exp);
+            }
+
+            idx += 1; // RBRACE
+
+            return new FunctionAssignmentExpression(func_name, args, body_expressions);
         }
 
     private:

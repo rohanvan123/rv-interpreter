@@ -137,6 +137,49 @@ std::string string_of_expression(Expression* exp) {
             res += "])";
             break;
         }
+        case ExpressionType::FUNC_ASSIGN_EXP: {
+            FunctionAssignmentExpression * func_exp = dynamic_cast<FunctionAssignmentExpression*>(exp);
+            res += "FuncAssignExp(";
+            res += func_exp->get_name();
+            res += ", [";
+
+            bool first = true;
+            for (std::string arg : func_exp->get_arg_names()) {
+                if (!first) res += ", ";
+                res += "ARG " + arg;
+                first = false;
+            }
+
+            res += "], [";
+
+            first = true;
+            for (FuncBodyExpression* body_exp : func_exp->get_body_exps()) {
+                if (!first) res += ", ";
+                if (body_exp->returnable) res += "Return(";
+                res += string_of_expression(body_exp->exp);
+                if (body_exp->returnable) res += ")";
+                first = false;
+            }
+
+            res += "])";
+            break;
+        }
+        case ExpressionType::FUNC_CALL_EXP: {
+            FunctionCallExpression * func_call_exp = dynamic_cast<FunctionCallExpression*>(exp);
+            res += "FuncCallExp(";
+            res += func_call_exp->get_name();
+            res += ", [";
+
+            bool first = true;
+            for (Expression* arg_exp : func_call_exp->get_arg_exps()) {
+                if (!first) res += ", ";
+                res += string_of_expression(arg_exp);
+                first = false;
+            }
+
+            res += "])";
+            break;
+        }
         case ExpressionType::LIST_EXP: {
             ListExpression * list_exp = dynamic_cast<ListExpression*>(exp);
             res += "ListExp(";

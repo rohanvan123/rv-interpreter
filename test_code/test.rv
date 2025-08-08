@@ -1,4 +1,9 @@
-let num = 7;
-num += 45 + 54;
-print(num);
+function test() {
+    return if (5 < 6) {
+        "hello";
+    } else {
+        "no";
+    }
+}
 
+print(test());

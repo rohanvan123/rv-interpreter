@@ -1,5 +1,5 @@
-function add(a, b) {
-    return a + b;
+function funAdd(a, b, c) {
+    return a + b * c;
 }
-let result = add(3, 4);
+let result = funAdd(3, 4, 5);
 print(result);

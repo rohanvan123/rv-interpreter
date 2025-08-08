@@ -2,9 +2,11 @@
 #include <variant>
 #include <vector>
 #include <cmath>
+#include "builtins.cpp"
 #include "expression.h"
-// using AstValue = std::variant<int, bool, std::string>;
+
 using Environment = std::map<std::string, Value>;
+using FunctionEnvironment = std::map<std::string, FunctionAssignmentExpression*>;
 
 class Evaluator {
     public:
@@ -14,8 +16,21 @@ class Evaluator {
             }
         }
 
+        void cleanup_envs() {
+            for (auto& pair : func_env) {
+                if (pair.second != nullptr) {
+                    delete pair.second;
+                    pair.second = nullptr;
+                }
+            }
+
+            env.clear();
+            func_env.clear();
+        }
+
     private:
         Environment env;
+        FunctionEnvironment func_env;
 
         Value evaluate_expression(Expression * exp) {
             switch (exp->get_signature()) {
@@ -76,6 +91,60 @@ class Evaluator {
                     }
 
                     return last_result;
+                }
+                case ExpressionType::FUNC_ASSIGN_EXP: { 
+                    FunctionAssignmentExpression * func_exp = dynamic_cast<FunctionAssignmentExpression*>(exp);
+                    func_env[func_exp->get_name()] = func_exp;
+                    return Value();
+                }
+                case ExpressionType::FUNC_CALL_EXP: {
+                    FunctionCallExpression * func_call_exp = dynamic_cast<FunctionCallExpression*>(exp);
+                    std::string func_name = func_call_exp->get_name();
+
+                    std::vector<Value> evaluated_args;
+                    for (Expression* arg_exp : func_call_exp->get_arg_exps()) {
+                        evaluated_args.push_back(evaluate_expression(arg_exp));
+                    }
+
+                    if (is_builtin_func(func_name)) {
+                        // switch (func_name) {
+                        //     case "push": {}
+                        //     case "remove": {}
+                        // }
+                    } else if (func_env.find(func_name) == func_env.end()) {
+                        throw std::runtime_error("function does not exist");
+                    }
+
+                    FunctionAssignmentExpression * func_exp = func_env[func_name];
+                
+                    if (func_call_exp->get_args_length() != func_exp->get_args_length()) {
+                        throw std::runtime_error("function call does not have same # of args as declaration");
+                    }
+
+                    // execute the function by adding to env, and then removing
+                    size_t arg_count = func_call_exp->get_args_length();
+                    std::vector<std::string> arg_names = func_exp->get_arg_names();
+                    Value return_val = Value();
+
+                    // add to environment
+                    for (size_t i = 0; i < arg_count; i++) {
+                        std::string arg_name = arg_names[i];
+                        Value arg_val = evaluated_args[i];
+                        env[arg_name] = arg_val;
+                    }
+
+                    for (FuncBodyExpression* inner_exp : func_exp->get_body_exps()) {
+                        return_val = evaluate_expression(inner_exp->exp);
+                        if (inner_exp->returnable) break;
+                    }
+
+                    // remove from env
+                    for (size_t i = 0; i < arg_count; i++) {
+                        std::string arg_name = arg_names[i];
+                        env.erase(arg_name);
+                    }
+
+                    return return_val;
                 }
                 case ExpressionType::LIST_EXP: {
                     ListExpression * list_statement = dynamic_cast<ListExpression*>(exp);

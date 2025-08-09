@@ -132,8 +132,7 @@ class Parser {
                 return parse_list_assign_expression(idx);
             } else if (match(idx, IDENTIFIER) && match(idx + 1, assignment_op_tokens)) {
                 return parse_assign_op_expression(idx);
-            } 
-            else if (match(idx, IF)) {
+            } else if (match(idx, IF)) {
                 return parse_if_expression(idx);
             } else if (match(idx, WHILE)) {
                 return parse_while_expression(idx);
@@ -141,8 +140,20 @@ class Parser {
                 return parse_function_expression(idx);
             } else {
                 // for simple expressions, delegate directly to old parser
+                bool returnable = false;
+                if (match(idx, RETURN)) {
+                    returnable = true;
+                    idx += 1;
+                }
+
                 std::vector<Token> tokens;
                 tokens = tokens_from_idx(idx);
+
+                if (returnable && tokens.size() == 0) {
+                    Expression *exp = new EmptyExpression();
+                    exp->set_returnable(true);
+                    return exp;
+                }
 
                 if (parsing_condition) {
                     tokens.erase(tokens.begin());
@@ -151,6 +162,8 @@ class Parser {
 
                 ArithmeticParser expr_parser(tokens);
                 Expression *exp = expr_parser.parse();
+                exp->set_returnable(returnable);
+
                 idx += 1; // SEMI or LBRACE
                 return exp;
             }
@@ -280,10 +293,15 @@ class Parser {
             }
 
             idx += 1; // RBRACE
-            idx += 1; // ELSE
-            idx += 1; // LBRACE
-
             std::vector<Expression *> else_expressions;
+            if (!match(idx, ELSE)) {
+                return new IfExpression(cond, if_expressions, else_expressions);
+                idx += 1;
+            } else {
+                idx += 1; // ELSE
+            }
+            
+            idx += 1; // LBRACE
 
             while (!match(idx, RBRACE)) {
                 else_expressions.push_back(parse_expression(idx, false));
@@ -312,15 +330,9 @@ class Parser {
 
             idx += 1; // RBRACE
 
-            std::vector<FuncBodyExpression*> body_expressions;
+            std::vector<Expression*> body_expressions;
             while (!match(idx, RBRACE)) {
-                bool returnable = false;
-                if (match(idx, RETURN)) {
-                    returnable = true;
-                    idx += 1;
-                }
-                FuncBodyExpression * body_exp = new FuncBodyExpression (parse_expression(idx, false), returnable);
-                body_expressions.push_back(body_exp);
+                body_expressions.push_back(parse_expression(idx, false));
             }
 
             idx += 1; // RBRACE

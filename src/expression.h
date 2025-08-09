@@ -27,13 +27,17 @@ enum class ExpressionType {
     LIST_MODIFY_EXP,
     FUNC_ASSIGN_EXP,
     FUNC_CALL_EXP,
+    EMPTY_EXP,
 };
 class Expression {
     protected:
         ExpressionType type;
+        bool returnable = false;
 
     public:
         Expression(ExpressionType t) : type(t) {}
+        bool is_returnable() { return returnable; }
+        void set_returnable(bool b) { returnable = b; }
         virtual ~Expression() {}
         virtual Expression* clone() const = 0;
 
@@ -41,14 +45,6 @@ class Expression {
             return type;
         }
 };
-
-// std::vector<Expression*> clone_exp_vector(std::vector<Expression*> vecs) {
-//     std::vector<Expression*> res;
-//     for (Expression* e : vecs) {
-//         res.push_back(e->clone());
-//     }
-//     return res;
-// }
 
 template<typename T>
 std::vector<T> clone_vector(const std::vector<T>& vecs) {
@@ -339,37 +335,37 @@ class ListModifyExpression : public Expression {
         }
 };
 
-class FuncBodyExpression {
-    public:
-        Expression * exp;
-        bool returnable;
-        FuncBodyExpression(Expression* _exp, bool _returnable): exp(_exp), returnable(_returnable) {}
-        FuncBodyExpression* clone() { return new FuncBodyExpression(exp->clone(), returnable); }
-        ~FuncBodyExpression() {
-            delete exp;
-            exp = nullptr;
-        }
-};
+// class FuncBodyExpression {
+//     public:
+//         Expression * exp;
+//         bool returnable;
+//         FuncBodyExpression(Expression* _exp, bool _returnable): exp(_exp), returnable(_returnable) {}
+//         FuncBodyExpression* clone() { return new FuncBodyExpression(exp->clone(), returnable); }
+//         ~FuncBodyExpression() {
+//             delete exp;
+//             exp = nullptr;
+//         }
+// };
 class FunctionAssignmentExpression : public Expression {
     private:
         std::string func_name;
         std::vector<std::string> arg_names;
-        std::vector<FuncBodyExpression*> body_expressions;
+        std::vector<Expression*> body_expressions;
 
     public: 
-        FunctionAssignmentExpression(std::string name, std::vector<std::string> aliases, std::vector<FuncBodyExpression*> e2): 
+        FunctionAssignmentExpression(std::string name, std::vector<std::string> aliases, std::vector<Expression*> e2): 
             Expression(ExpressionType::FUNC_ASSIGN_EXP), func_name(name), body_expressions(e2), arg_names(aliases) {}
         std::string get_name() { return func_name; }
-        std::vector<FuncBodyExpression*> get_body_exps() {return body_expressions; }
+        std::vector<Expression*> get_body_exps() {return body_expressions; }
         std::vector<std::string> get_arg_names() { return arg_names; }
         size_t get_args_length() { return arg_names.size(); }
 
         Expression* clone() const override {
-            return new FunctionAssignmentExpression(func_name, arg_names, clone_vector<FuncBodyExpression*>(body_expressions));
+            return new FunctionAssignmentExpression(func_name, arg_names, clone_vector<Expression*>(body_expressions));
         }
         ~FunctionAssignmentExpression() {
-            for (FuncBodyExpression* exp : body_expressions) {
-                delete exp;
+            for (Expression* expr : body_expressions) {
+                delete expr;
             }
             body_expressions.clear();
             arg_names.clear();
@@ -392,6 +388,16 @@ class FunctionCallExpression : public Expression {
             return new FunctionCallExpression(func_name, clone_vector<Expression*>(arg_expressions));
         }
         ~FunctionCallExpression() {
+            for (Expression* expr : arg_expressions) {
+                delete expr;
+            }
             arg_expressions.clear();
         }
+};
+
+// Empty Expressions for empty return statemnts
+class EmptyExpression : public Expression {
+    public:
+        EmptyExpression(): Expression(ExpressionType::EMPTY_EXP) {}
+        Expression *clone() const override { return new EmptyExpression(); }
 };

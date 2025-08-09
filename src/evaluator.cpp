@@ -34,6 +34,9 @@ class Evaluator {
 
         Value evaluate_expression(Expression * exp) {
             switch (exp->get_signature()) {
+                case ExpressionType::EMPTY_EXP: {
+                    return Value();
+                }
                 case ExpressionType::CONST_EXP: {
                     // std::cout << "const" << std::endl;
                     ConstExp * const_exp = dynamic_cast<ConstExp*>(exp);
@@ -65,6 +68,10 @@ class Evaluator {
                         Value last_result; // default fallback
                         for (Expression* sub_exp : branch) {
                             last_result = evaluate_expression(sub_exp);
+                            if (sub_exp->is_returnable()) {
+                                if_statement->set_returnable(true);
+                                break;
+                            }
                         }
                         return last_result;
 
@@ -77,16 +84,17 @@ class Evaluator {
                     Value last_result;
                     while (true) {
                         Value cond_val = evaluate_expression(while_statment->get_conditional());
-                        if (std::holds_alternative<bool>(cond_val.data)) {
-                            bool b = std::get<bool>(cond_val.data);
-                            if (!b) break;
+                        if (!std::holds_alternative<bool>(cond_val.data)) { throw std::runtime_error("While loop condition does not evaluate to bool"); }
 
-                            for (Expression* sub_exp : while_statment->get_body_exps()) {
-                                last_result = evaluate_expression(sub_exp);
+                        bool b = std::get<bool>(cond_val.data);
+                        if (!b) break;
+
+                        for (Expression* sub_exp : while_statment->get_body_exps()) {
+                            last_result = evaluate_expression(sub_exp);
+                            if (sub_exp->is_returnable()) {
+                                while_statment->set_returnable(true);
+                                return last_result;
                             }
-
-                        } else {
-                            throw std::runtime_error("While loop condition does not evaluate to bool");
                         }
                     }
 
@@ -107,10 +115,18 @@ class Evaluator {
                     }
 
                     if (is_builtin_func(func_name)) {
-                        // switch (func_name) {
-                        //     case "push": {}
-                        //     case "remove": {}
-                        // }
+                        if (func_name == "append") {
+                            std::vector<Value> vec = std::get<std::vector<Value>>(evaluated_args[0].data);
+                            Value v = (evaluated_args[1].data);
+                            vec.push_back(v);
+                            return Value(vec);
+                        } else if (func_name == "remove") {
+                            std::vector<Value> vec = std::get<std::vector<Value>>(evaluated_args[0].data);
+                            int idx = std::get<int>(evaluated_args[1].data);
+                            if (idx < 0 || idx >= vec.size()) { throw std::runtime_error("idx out of range for remove()"); }
+                            vec.erase(vec.begin() + idx);
+                            return Value(vec);
+                        }
                     } else if (func_env.find(func_name) == func_env.end()) {
                         throw std::runtime_error("function does not exist");
                     }
@@ -133,9 +149,9 @@ class Evaluator {
                         env[arg_name] = arg_val;
                     }
 
-                    for (FuncBodyExpression* inner_exp : func_exp->get_body_exps()) {
-                        return_val = evaluate_expression(inner_exp->exp);
-                        if (inner_exp->returnable) break;
+                    for (Expression* inner_exp : func_exp->get_body_exps()) {
+                        return_val = evaluate_expression(inner_exp);
+                        if (inner_exp->is_returnable()) break;
                     }
 
                     // remove from env

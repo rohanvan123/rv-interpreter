@@ -74,6 +74,9 @@ std::string string_of_expression(Expression* exp) {
     // std::cout << "called" << std::endl;
     std::string res = "";
     switch (exp->get_signature()) {
+        case ExpressionType::EMPTY_EXP: {
+            return "";
+        }
         case ExpressionType::CONST_EXP: {
             // std::cout << "const" << std::endl;
             ConstExp * const_exp = dynamic_cast<ConstExp*>(exp);
@@ -153,11 +156,11 @@ std::string string_of_expression(Expression* exp) {
             res += "], [";
 
             first = true;
-            for (FuncBodyExpression* body_exp : func_exp->get_body_exps()) {
+            for (Expression* body_exp : func_exp->get_body_exps()) {
                 if (!first) res += ", ";
-                if (body_exp->returnable) res += "Return(";
-                res += string_of_expression(body_exp->exp);
-                if (body_exp->returnable) res += ")";
+                if (body_exp->is_returnable()) res += "Return(";
+                res += string_of_expression(body_exp);
+                if (body_exp->is_returnable()) res += ")";
                 first = false;
             }
 

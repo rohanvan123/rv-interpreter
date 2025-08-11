@@ -1,7 +1,7 @@
 #include <string>
 #include <set>
 
-std::set<std::string> _builtin_functions = {"append", "remove"};
+std::set<std::string> _builtin_functions = {"append", "remove", "type"};
 
 void _builtin_push(std::vector<Value>& v, Value e) {
     v.push_back(e);

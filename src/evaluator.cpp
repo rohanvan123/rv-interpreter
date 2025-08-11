@@ -126,6 +126,19 @@ class Evaluator {
                             if (idx < 0 || idx >= vec.size()) { throw std::runtime_error("idx out of range for remove()"); }
                             vec.erase(vec.begin() + idx);
                             return Value(vec);
+                        } else if (func_name == "type") {
+                            Value arg = evaluated_args[0];
+                            if (std::holds_alternative<int>(arg.data)) {
+                                return Value("int");
+                            } else if (std::holds_alternative<std::string>(arg.data)) {
+                                return Value("string");
+                            } else if (std::holds_alternative<bool>(arg.data)) {
+                                return Value("bool");
+                            } else if (std::holds_alternative<std::vector<Value>>(arg.data)) {
+                                return Value("list");
+                            } else {
+                                return Value("other");
+                            }
                         }
                     } else if (func_env.find(func_name) == func_env.end()) {
                         throw std::runtime_error("function does not exist");

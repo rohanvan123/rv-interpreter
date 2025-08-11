@@ -1,0 +1,40 @@
+FUNCTION, IDENT f, LEFT_PAREN, IDENT n, RIGHT_PAREN, LBRACE
+IF, LEFT_PAREN, IDENT n, EQUALITY, INT 1, RIGHT_PAREN, LBRACE
+RETURN, INT 1, SEMI
+RBRACE
+RETURN, IDENT n, TIMES, IDENT f, LEFT_PAREN, IDENT n, MINUS, INT 1, RIGHT_PAREN, SEMI
+RBRACE
+PRINT, LEFT_PAREN, IDENT f, LEFT_PAREN, INT 4, RIGHT_PAREN, RIGHT_PAREN, SEMI
+FUNCTION, IDENT t, LEFT_PAREN, IDENT n, RIGHT_PAREN, LBRACE
+FUNCTION, IDENT q, LEFT_PAREN, IDENT y, RIGHT_PAREN, LBRACE
+RETURN, IDENT y, TIMES, IDENT y, SEMI
+RBRACE
+RETURN, IDENT q, LEFT_PAREN, IDENT n, RIGHT_PAREN, PLUS, IDENT q, LEFT_PAREN, IDENT n, MINUS, INT 1, RIGHT_PAREN, SEMI
+RBRACE
+PRINT, LEFT_PAREN, IDENT t, LEFT_PAREN, INT 6, RIGHT_PAREN, RIGHT_PAREN, SEMI
+FUNCTION, IDENT iter, LEFT_PAREN, RIGHT_PAREN, LBRACE
+LET, IDENT i, EQUALS, INT 1, SEMI
+WHILE, LEFT_PAREN, BOOL true, RIGHT_PAREN, LBRACE
+PRINT, LEFT_PAREN, IDENT i, RIGHT_PAREN, SEMI
+IF, LEFT_PAREN, IDENT i, MOD, INT 5, EQUALITY, INT 0, RIGHT_PAREN, LBRACE
+RETURN, SEMI
+RBRACE
+IDENT i, PLUS_EQUALS, INT 1, SEMI
+RBRACE
+RBRACE
+IDENT iter, LEFT_PAREN, RIGHT_PAREN, SEMI
+=================================
+FuncAssignExp(f, [ARG n], [IfExp(BinaryExp(EqualsOp, VarExp(n), ConstExp(IntConst 1)), [ConstExp(IntConst 1)], []), Return(BinaryExp(IntTimesOp, VarExp(n), FuncCallExp(f, [BinaryExp(IntMinusOp, VarExp(n), ConstExp(IntConst 1))])))])
+MonadicExp(Print, FuncCallExp(f, [ConstExp(IntConst 4)]))
+FuncAssignExp(t, [ARG n], [FuncAssignExp(q, [ARG y], [Return(BinaryExp(IntTimesOp, VarExp(y), VarExp(y)))]), Return(BinaryExp(IntPlusOp, FuncCallExp(q, [VarExp(n)]), FuncCallExp(q, [BinaryExp(IntMinusOp, VarExp(n), ConstExp(IntConst 1))])))])
+MonadicExp(Print, FuncCallExp(t, [ConstExp(IntConst 6)]))
+FuncAssignExp(iter, [], [LetExp(i, ConstExp(IntConst 1)), WhileExp(ConstExp(BoolConst true), [MonadicExp(Print, VarExp(i)), IfExp(BinaryExp(EqualsOp, BinaryExp(ModOp, VarExp(i), ConstExp(IntConst 5)), ConstExp(IntConst 0)), [], []), ReassignExp(i, BinaryExp(IntPlusOp, VarExp(i), ConstExp(IntConst 1)))])])
+FuncCallExp(iter, [])
+=================================
+24
+61
+1
+2
+3
+4
+5

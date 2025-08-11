@@ -1,0 +1,12 @@
+let x = [1, "hello", true];
+x = append(x, [1, 2, 3]);
+x = append(x, x);
+print(x);
+x = remove(x, size(x) - 1);
+print(x);
+
+let i = 0;
+while (i < size(x)) {
+    print(type(x[i]));
+    i += 1;
+}

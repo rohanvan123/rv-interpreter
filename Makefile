@@ -1,7 +1,7 @@
 CXX = g++
-CXXFLAGS = -std=c++20 -Iincludes -Wall -Werror -Wpedantic
+CXXFLAGS = -std=c++20 -Iincludes -Wall -Werror -Wpedantic -Wunused
 TARGET = bin/test
-SRCS = src/main.cpp
+SRCS = src/main.cpp src/lexer.cpp src/parser.cpp src/arithmetic_parser.cpp src/evaluator.cpp src/utils.cpp
 
 test:
 	mkdir -p bin

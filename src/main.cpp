@@ -1,40 +1,42 @@
-#include <string>
 #include <fstream>
-#include <vector>
 #include <stack>
-#include "arithmetic_parser.cpp"
-#include "parser.cpp"
-#include "evaluator.cpp"
+#include <string>
+#include <vector>
+
+#include "evaluator.hpp"
+#include "lexer.hpp"
+#include "parser.hpp"
+#include "utils.hpp"
 
 const std::string DELIMITER = "=================================";
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <filename>\n";
-        return 1;
-    }
-    
-    std::string filename = argv[1];
-    std::string buffer = utils::read_file_into_buffer(argv[1]);
+  if (argc < 2) {
+    std::cerr << "Usage: " << argv[0] << " <filename>\n";
+    return 1;
+  }
 
-    Lexer lex(buffer);
-    std::vector<Token> tokens = lex.generate_tokens();
+  std::string filename = argv[1];
+  std::string buffer = utils::read_file_into_buffer(argv[1]);
 
-    utils::print_tokens_by_line(tokens);
-    std::cout << DELIMITER << std::endl;
+  Lexer lex(buffer);
+  std::vector<Token> tokens = lex.generate_tokens();
 
-    Parser np(tokens);
-    std::vector<Expression*> expressions = np.parse_top_level_expressions();
+  utils::print_tokens_by_line(tokens);
+  std::cout << DELIMITER << std::endl;
 
-    for (size_t i = 0; i < expressions.size(); i++) {
-        Expression* abstract_syntax_tree = expressions[i];
-        std::string exp_str = utils::string_of_expression(abstract_syntax_tree);
-        std::cout << exp_str << std::endl;
-    }
-    std::cout << DELIMITER << std::endl;
+  Parser np(tokens);
+  std::vector<Expression *> expressions = np.parse_top_level_expressions();
 
-    Evaluator evaluator;
-    evaluator.evaluate_commands(expressions);
-    
-    utils::cleanup_expressions(expressions);
+  for (size_t i = 0; i < expressions.size(); i++) {
+    Expression *abstract_syntax_tree = expressions[i];
+    std::string exp_str = utils::string_of_expression(abstract_syntax_tree);
+    std::cout << exp_str << std::endl;
+  }
+  std::cout << DELIMITER << std::endl;
+
+  Evaluator evaluator;
+  evaluator.evaluate_commands(expressions);
+
+  utils::cleanup_expressions(expressions);
 }

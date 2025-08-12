@@ -1,7 +1,12 @@
 #include "evaluator.hpp"
-#include "builtins.cpp"
+#include "utils.hpp"
 
 #include <cmath>
+
+bool is_builtin_func(const std::string& func_name) {
+    static const std::set<std::string> _builtin_functions = {"append", "remove", "type", "string"};
+    return _builtin_functions.find(func_name) != _builtin_functions.end();
+}
 
 Value Evaluator::evaluate_expression(Expression * exp) {
     switch (exp->get_signature()) {
@@ -186,8 +191,8 @@ Value Evaluator::evaluate_expression(Expression * exp) {
 
                 return Value(arr[idx]);
 
-            } else if (std::holds_alternative<string>(va1.data) && std::holds_alternative<int>(va2.data)) {
-                std::string str = std::get<string>(va1.data);
+            } else if (std::holds_alternative<std::string>(va1.data) && std::holds_alternative<int>(va2.data)) {
+                std::string str = std::get<std::string>(va1.data);
                 int idx = std::get<int>(va2.data);
 
                 if (idx < 0 || idx >= str.size()) {

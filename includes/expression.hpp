@@ -3,6 +3,7 @@
 
 #include <string> 
 #include <iostream>
+#include <vector>
 
 class Value;
 
@@ -94,7 +95,7 @@ class ConstExp : public Expression {
         Expression* clone() const override {
             switch (const_type) {
                 case ConstType::IntConst: return new ConstExp(std::get<int>(value.data));
-                case ConstType::StringConst: return new ConstExp(std::get<string>(value.data));
+                case ConstType::StringConst: return new ConstExp(std::get<std::string>(value.data));
                 case ConstType::BoolConst: return new ConstExp(std::get<bool>(value.data));
                 default: throw std::runtime_error("Unknown ConstType in clone");
             }

@@ -1,5 +1,32 @@
-let x = [1,2,3,4];
-print(x);
-x = append(x, 75);
-x = remove(x, 2);
-print(x);
+function f(n) {
+    if (n == 1) {
+        return 1;
+    }
+    return n * f(n - 1);
+}
+
+print(f(4));
+
+function t(n) {
+    function q(y) {
+        return y * y;
+    }
+
+    return q(n) + q(n - 1);
+}
+
+print(t(6));
+
+function iter() {
+    let i = 1;
+    while(true) {
+        print(i);
+        if (i % 5 == 0) {
+            return;
+        }
+        i += 1;
+    }
+}
+
+iter();
+

@@ -139,6 +139,20 @@ class Evaluator {
                             } else {
                                 return Value("other");
                             }
+                        } else if (func_name == "string") {
+                            Value arg = evaluated_args[0];
+                            if (std::holds_alternative<int>(arg.data)) {
+                                int a = std::get<int>(arg.data);
+                                return Value(std::to_string(a));
+                            } else if (std::holds_alternative<std::string>(arg.data)) {
+                                return arg.data;
+                            } else if (std::holds_alternative<bool>(arg.data)) {
+                                bool b = std::get<bool>(arg.data);
+                                std::string result = b ? "true" : "false";
+                                return Value(result);
+                            } else if (std::holds_alternative<std::vector<Value>>(arg.data)) {
+                                return Value("list");
+                            }
                         }
                     } else if (func_env.find(func_name) == func_env.end()) {
                         throw std::runtime_error("function does not exist");

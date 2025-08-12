@@ -69,13 +69,28 @@ std::string read_file_into_buffer(char *filepath) {
     return buffer;
 }
 
+std::set<ExpressionType> returnable_exps = {
+    ExpressionType::CONST_EXP,
+    ExpressionType::VAR_EXP,
+    ExpressionType::BIN_EXP,
+    ExpressionType::MON_EXP,
+    ExpressionType::LIST_EXP,
+    ExpressionType::LIST_ACCESS_EXP,
+    ExpressionType::FUNC_CALL_EXP,
+    ExpressionType::EMPTY_EXP,
+};
+
 std::string string_of_expression(Expression* exp) {
     // std::cout << exp << std::endl;
     // std::cout << "called" << std::endl;
+    bool add_return = false;
+    if (exp->is_returnable() && returnable_exps.find(exp->get_signature()) != returnable_exps.end()) add_return = true;
     std::string res = "";
+    if (add_return) res += "Return(";
+    
     switch (exp->get_signature()) {
         case ExpressionType::EMPTY_EXP: {
-            return "";
+            break;
         }
         case ExpressionType::CONST_EXP: {
             // std::cout << "const" << std::endl;
@@ -85,12 +100,17 @@ std::string string_of_expression(Expression* exp) {
             switch (const_exp->get_type()) {
                 case ConstType::BoolConst: {
                     std::string bool_str = std::get<bool>(const_exp->value.data) ? "true" : "false";
-                    return res + "BoolConst " + bool_str + ')';
+                    res = res + "BoolConst " + bool_str + ')';
+                    break;
                 }
-                case ConstType::IntConst: return res + "IntConst " + std::to_string(std::get<int>(const_exp->value.data)) + ')';
+                case ConstType::IntConst: {
+                    res = res + "IntConst " + std::to_string(std::get<int>(const_exp->value.data)) + ')';
+                    break;
+                }
                 case ConstType::StringConst: {
                     std::string s = std::get<std::string>(const_exp->value.data);
-                    return  res + "StringConst \"" + s + "\")";
+                    res = res + "StringConst \"" + s + "\")";
+                    break;
                 }
             };
             break;
@@ -99,7 +119,7 @@ std::string string_of_expression(Expression* exp) {
             // std::cout << "var" << std::endl;
             // std::cout << "its variable" << std::endl;
             VarExp * var_exp = dynamic_cast<VarExp*>(exp);
-            return "VarExp(" + var_exp->get_var_name() + ")";
+            res = "VarExp(" + var_exp->get_var_name() + ")";
             break;
         }
         case ExpressionType::IF_EXP: {
@@ -149,7 +169,7 @@ std::string string_of_expression(Expression* exp) {
             bool first = true;
             for (std::string arg : func_exp->get_arg_names()) {
                 if (!first) res += ", ";
-                res += "ARG " + arg;
+                res += arg;
                 first = false;
             }
 
@@ -158,9 +178,7 @@ std::string string_of_expression(Expression* exp) {
             first = true;
             for (Expression* body_exp : func_exp->get_body_exps()) {
                 if (!first) res += ", ";
-                if (body_exp->is_returnable()) res += "Return(";
                 res += string_of_expression(body_exp);
-                if (body_exp->is_returnable()) res += ")";
                 first = false;
             }
 
@@ -292,6 +310,8 @@ std::string string_of_expression(Expression* exp) {
             break;
         }
     };
+
+    if (add_return) res += ")";
 
     return res;
 

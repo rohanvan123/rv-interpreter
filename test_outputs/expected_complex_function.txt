@@ -24,11 +24,11 @@ RBRACE
 RBRACE
 IDENT iter, LEFT_PAREN, RIGHT_PAREN, SEMI
 =================================
-FuncAssignExp(f, [ARG n], [IfExp(BinaryExp(EqualsOp, VarExp(n), ConstExp(IntConst 1)), [ConstExp(IntConst 1)], []), Return(BinaryExp(IntTimesOp, VarExp(n), FuncCallExp(f, [BinaryExp(IntMinusOp, VarExp(n), ConstExp(IntConst 1))])))])
+FuncAssignExp(f, [n], [IfExp(BinaryExp(EqualsOp, VarExp(n), ConstExp(IntConst 1)), [Return(ConstExp(IntConst 1))], []), Return(BinaryExp(IntTimesOp, VarExp(n), FuncCallExp(f, [BinaryExp(IntMinusOp, VarExp(n), ConstExp(IntConst 1))])))])
 MonadicExp(Print, FuncCallExp(f, [ConstExp(IntConst 4)]))
-FuncAssignExp(t, [ARG n], [FuncAssignExp(q, [ARG y], [Return(BinaryExp(IntTimesOp, VarExp(y), VarExp(y)))]), Return(BinaryExp(IntPlusOp, FuncCallExp(q, [VarExp(n)]), FuncCallExp(q, [BinaryExp(IntMinusOp, VarExp(n), ConstExp(IntConst 1))])))])
+FuncAssignExp(t, [n], [FuncAssignExp(q, [y], [Return(BinaryExp(IntTimesOp, VarExp(y), VarExp(y)))]), Return(BinaryExp(IntPlusOp, FuncCallExp(q, [VarExp(n)]), FuncCallExp(q, [BinaryExp(IntMinusOp, VarExp(n), ConstExp(IntConst 1))])))])
 MonadicExp(Print, FuncCallExp(t, [ConstExp(IntConst 6)]))
-FuncAssignExp(iter, [], [LetExp(i, ConstExp(IntConst 1)), WhileExp(ConstExp(BoolConst true), [MonadicExp(Print, VarExp(i)), IfExp(BinaryExp(EqualsOp, BinaryExp(ModOp, VarExp(i), ConstExp(IntConst 5)), ConstExp(IntConst 0)), [], []), ReassignExp(i, BinaryExp(IntPlusOp, VarExp(i), ConstExp(IntConst 1)))])])
+FuncAssignExp(iter, [], [LetExp(i, ConstExp(IntConst 1)), WhileExp(ConstExp(BoolConst true), [MonadicExp(Print, VarExp(i)), IfExp(BinaryExp(EqualsOp, BinaryExp(ModOp, VarExp(i), ConstExp(IntConst 5)), ConstExp(IntConst 0)), [Return()], []), ReassignExp(i, BinaryExp(IntPlusOp, VarExp(i), ConstExp(IntConst 1)))])])
 FuncCallExp(iter, [])
 =================================
 24

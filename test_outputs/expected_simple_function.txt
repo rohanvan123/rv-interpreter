@@ -4,7 +4,7 @@ RBRACE
 LET, IDENT result, EQUALS, IDENT funAdd, LEFT_PAREN, INT 3, COMMA, INT 4, COMMA, INT 5, RIGHT_PAREN, SEMI
 PRINT, LEFT_PAREN, IDENT result, RIGHT_PAREN, SEMI
 =================================
-FuncAssignExp(funAdd, [ARG a, ARG b, ARG c], [Return(BinaryExp(IntPlusOp, VarExp(a), BinaryExp(IntTimesOp, VarExp(b), VarExp(c))))])
+FuncAssignExp(funAdd, [a, b, c], [Return(BinaryExp(IntPlusOp, VarExp(a), BinaryExp(IntTimesOp, VarExp(b), VarExp(c))))])
 LetExp(result, FuncCallExp(funAdd, [ConstExp(IntConst 3), ConstExp(IntConst 4), ConstExp(IntConst 5)]))
 MonadicExp(Print, VarExp(result))
 =================================

@@ -10,3 +10,5 @@ while (i < size(x)) {
     print(type(x[i]));
     i += 1;
 }
+print("wait");
+print(type(string(x[0])));

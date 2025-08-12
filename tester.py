@@ -6,7 +6,7 @@ class TestCppProgram(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Compile once before all tests
-        result = subprocess.run("g++ -std=c++20 src/main.cpp -o bin/test", shell=True, text=True, capture_output=True)
+        result = subprocess.run("make test", shell=True, text=True, capture_output=True)
         if result.returncode != 0:
             raise RuntimeError("Compilation failed:\n" + result.stderr)
 

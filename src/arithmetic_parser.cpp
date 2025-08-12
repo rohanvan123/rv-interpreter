@@ -1,5 +1,5 @@
 #include "lexer.cpp"
-#include "expression.h"
+#include "expression.hpp"
 #include <cstdarg>
 
 class ArithmeticParser {

@@ -208,11 +208,11 @@ class Lexer {
 
                 } else {
                     std::string curr_string = "";
-                    unsigned curr_len = 0;
+                    // unsigned curr_len = 0;
                     while (in_bounds() && !whitespace(source[current]) && (single_chars.find(source[current]) == single_chars.end())) {
                         char c = source[current];
                         curr_string.push_back(c);
-                        curr_len += 1;
+                        // curr_len += 1;
                         current += 1;
                         
                     }

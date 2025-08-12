@@ -1,5 +1,5 @@
 // #include "lexer.cpp"
-#include "expression.h"
+#include "expression.hpp"
 #include "utils.cpp"
 #include <stack>
 #include <set>
@@ -61,11 +61,7 @@ std::map<TokenType, BinaryOperator> token_to_binop = {
 
 class Parser {
     public:
-        Parser(const std::vector<Token>& tokens): _tokens(tokens) {
-            size_t idx = 0;
-            // _root_block = parse_block(tokens, idx);
-            // _current_block = _root_block;
-        }
+        Parser(const std::vector<Token>& tokens): _tokens(tokens) {}
 
         std::vector<Token> tokens_from_idx(int &idx) {
             // std::cout << "tokens_from_idx" << std::endl;

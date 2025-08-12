@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++20
+CXXFLAGS = -std=c++20 -Iincludes -Wall -Werror -Wpedantic
 TARGET = bin/test
 SRCS = src/main.cpp
 

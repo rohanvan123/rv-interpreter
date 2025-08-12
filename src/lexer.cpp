@@ -67,6 +67,7 @@ enum TokenType {
     IF,
     ELSE,
     FUNCTION,
+    RETURN,
     END_OF_FILE
 };
 
@@ -151,6 +152,7 @@ std::string token_to_string(Token token) {
         case IF: return "IF";
         case ELSE: return "ELSE";
         case FUNCTION: return "FUNCTION";
+        case RETURN: return "RETURN";
         case END_OF_FILE: return "EOF";
         default: return "UNIDENTIFIED TOKEN " + token.get_string();
     }
@@ -174,43 +176,6 @@ class Lexer {
             return current < source.size();
         }
 
-        // std::vector<std::vector<Token>> generate_seq_if(std::vector<Token>& tokens) {
-        //     std::vector<std::vector<Token>> sequence;
-        //     std::vector<Token> curr;
-
-        //     while (split_idx < tokens.size() && tokens[split_idx].get_type() != RBRACE) {
-        //         if 
-        //     }
-        // }
-
-        // std::vector<std::vector<Token>> generate_sequence_set(std::vector<Token>& tokens) {
-        //     std::vector<std::vector<Token>> sequence;
-        //     std::vector<Token> curr;
-            
-
-        //     while (split_idx < tokens.size()) {
-        //         if (tokens[split_idx].get_type() == SEMI) {
-        //             sequence.push_back(curr);
-        //             curr.clear();
-        //         } else if (tokens[split_idx].get_type() == IF) {
-
-        //         } else {
-        //             curr.push_back(tokens[split_idx]);
-        //         }
-        //         split_idx += 1;
-        //     }
-
-        //     // for (split_idx; split_idx < tokens.size(); split_idx++) {
-        //     //     if (tokens[i].get_type() == SEMI) {
-        //     //         sequence.push_back(curr);
-        //     //         curr.clear();
-        //     //     } else {
-        //     //         curr.push_back(tokens[i]);
-        //     //     }
-        //     // }
-
-        //     return sequence;
-        // }
 
         std::vector<Token> generate_tokens() {
             while (in_bounds()) {
@@ -256,33 +221,32 @@ class Lexer {
                     static const std::regex neg_integer_regex("-[0-9]+");
                     static const std::regex identifier_regex("[a-z][a-zA-Z0-9_]*");
                     
-                    
                     if (keyword_tokens.find(curr_string) != keyword_tokens.end()) { 
                         Token new_token = Token(keyword_tokens[curr_string], curr_string, line);
                         tokens.push_back(new_token);
+
                     } else if (std::regex_match(curr_string, integer_regex)) {
                         Token new_token = Token(INTEGER, curr_string, line);
                         tokens.push_back(new_token);
+
                     } else if (std::regex_match(curr_string, neg_integer_regex)) {
                         Token neg_token = Token(MINUS, "-", line);
                         Token new_token = Token(INTEGER, curr_string.substr(1), line);
                         tokens.push_back(neg_token);
                         tokens.push_back(new_token);
+
                     } else if (std::regex_match(curr_string, identifier_regex)) {
                         Token new_token = Token(IDENTIFIER, curr_string, line);
                         tokens.push_back(new_token);
                     }
                         
-                    start = current;
-
-                    
+                    start = current;                    
                 }
             }
 
             Token new_token = Token(END_OF_FILE, "EOF", line);
             tokens.push_back(new_token);
             return tokens;
-
         }
         
     private:
@@ -327,6 +291,7 @@ class Lexer {
             {"if", IF},
             {"else", ELSE},
             {"function", FUNCTION},
+            {"return", RETURN},
         };
 
         std::vector<Token> tokens;

@@ -24,14 +24,20 @@ enum class ExpressionType {
     WHILE_EXP,
     LIST_EXP,
     LIST_ACCESS_EXP,
-    LIST_MODIFY_EXP
+    LIST_MODIFY_EXP,
+    FUNC_ASSIGN_EXP,
+    FUNC_CALL_EXP,
+    EMPTY_EXP,
 };
 class Expression {
     protected:
         ExpressionType type;
+        bool returnable = false;
 
     public:
         Expression(ExpressionType t) : type(t) {}
+        bool is_returnable() { return returnable; }
+        void set_returnable(bool b) { returnable = b; }
         virtual ~Expression() {}
         virtual Expression* clone() const = 0;
 
@@ -40,9 +46,11 @@ class Expression {
         }
 };
 
-std::vector<Expression*> clone_exp_vector(std::vector<Expression*> vecs) {
-    std::vector<Expression*> res;
-    for (Expression* e : vecs) {
+template<typename T>
+std::vector<T> clone_vector(const std::vector<T>& vecs) {
+    std::vector<T> res;
+    res.reserve(vecs.size());  // optional, improves performance
+    for (T e : vecs) {
         res.push_back(e->clone());
     }
     return res;
@@ -204,7 +212,7 @@ class IfExpression : public Expression {
         std::vector<Expression *> get_if_exps() {return if_expressions; }
         std::vector<Expression *> get_else_exps() {return else_expressions; }
         Expression* clone() const override {
-            return new IfExpression(conditional->clone(), clone_exp_vector(if_expressions), clone_exp_vector(else_expressions));
+            return new IfExpression(conditional->clone(), clone_vector<Expression*>(if_expressions), clone_vector<Expression*>(else_expressions));
         }
         ~IfExpression() {
             delete conditional;
@@ -234,7 +242,7 @@ class WhileExpression : public Expression {
         Expression * get_conditional() {return conditional; }
         std::vector<Expression *> get_body_exps() {return body_expressions; }
         Expression* clone() const override {
-            return new WhileExpression(conditional->clone(), clone_exp_vector(body_expressions));
+            return new WhileExpression(conditional->clone(), clone_vector<Expression*>(body_expressions));
         }
         ~WhileExpression() {
             delete conditional;
@@ -258,7 +266,7 @@ class ListExpression : public Expression {
         std::vector<Expression*> get_elements() { return elements; }
         Expression * access_element(int idx) { return elements.at(idx); }
         Expression* clone() const override {
-            return new ListExpression(clone_exp_vector(elements));
+            return new ListExpression(clone_vector<Expression*>(elements));
         }
         ~ListExpression() {
             for (Expression* expr : elements) {
@@ -325,4 +333,71 @@ class ListModifyExpression : public Expression {
                 exp = nullptr;
             }
         }
+};
+
+// class FuncBodyExpression {
+//     public:
+//         Expression * exp;
+//         bool returnable;
+//         FuncBodyExpression(Expression* _exp, bool _returnable): exp(_exp), returnable(_returnable) {}
+//         FuncBodyExpression* clone() { return new FuncBodyExpression(exp->clone(), returnable); }
+//         ~FuncBodyExpression() {
+//             delete exp;
+//             exp = nullptr;
+//         }
+// };
+class FunctionAssignmentExpression : public Expression {
+    private:
+        std::string func_name;
+        std::vector<std::string> arg_names;
+        std::vector<Expression*> body_expressions;
+
+    public: 
+        FunctionAssignmentExpression(std::string name, std::vector<std::string> aliases, std::vector<Expression*> e2): 
+            Expression(ExpressionType::FUNC_ASSIGN_EXP), func_name(name), body_expressions(e2), arg_names(aliases) {}
+        std::string get_name() { return func_name; }
+        std::vector<Expression*> get_body_exps() {return body_expressions; }
+        std::vector<std::string> get_arg_names() { return arg_names; }
+        size_t get_args_length() { return arg_names.size(); }
+
+        Expression* clone() const override {
+            return new FunctionAssignmentExpression(func_name, arg_names, clone_vector<Expression*>(body_expressions));
+        }
+        ~FunctionAssignmentExpression() {
+            for (Expression* expr : body_expressions) {
+                delete expr;
+            }
+            body_expressions.clear();
+            arg_names.clear();
+        }
+};
+
+class FunctionCallExpression : public Expression {
+    private:
+        std::string func_name;
+        std::vector<Expression*> arg_expressions;
+
+    public: 
+        FunctionCallExpression(std::string name, std::vector<Expression*> exps): 
+            Expression(ExpressionType::FUNC_CALL_EXP), func_name(name), arg_expressions(exps) {}
+        std::string get_name() { return func_name; }
+        std::vector<Expression*> get_arg_exps() {return arg_expressions; }
+        size_t get_args_length() { return arg_expressions.size(); }
+
+        Expression* clone() const override {
+            return new FunctionCallExpression(func_name, clone_vector<Expression*>(arg_expressions));
+        }
+        ~FunctionCallExpression() {
+            for (Expression* expr : arg_expressions) {
+                delete expr;
+            }
+            arg_expressions.clear();
+        }
+};
+
+// Empty Expressions for empty return statemnts
+class EmptyExpression : public Expression {
+    public:
+        EmptyExpression(): Expression(ExpressionType::EMPTY_EXP) {}
+        Expression *clone() const override { return new EmptyExpression(); }
 };

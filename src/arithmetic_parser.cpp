@@ -139,7 +139,26 @@ class ArithmeticParser {
             if (match(1, STRING)) return new ConstExp(previous().get_string());
 
             if (match(1, IDENTIFIER)) {
-                Expression* ident_exp = new VarExp(previous().get_string());
+                std::string ident_name = previous().get_string();
+                if (match(1, LEFT_PAREN)) {
+                    std::vector<Expression*> arg_exps;
+                    // Function Call
+
+                    if (!match(1, RIGHT_PAREN)) {
+                        do {
+                            Expression * arg_exp = expression();
+                            arg_exps.push_back(arg_exp);
+                        } while(match(1, COMMA));
+
+                        if (!match(1, RIGHT_PAREN)) {
+                            throw std::runtime_error("Expected a ')' for function call");
+                        }
+                    }
+
+                    return new FunctionCallExpression(ident_name, arg_exps);
+                }
+
+                Expression* ident_exp = new VarExp(ident_name);
                 
                 if (check(LBRACKET)) {
                     // LIST ACCESS

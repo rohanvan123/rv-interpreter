@@ -132,23 +132,38 @@ class Parser {
                 return parse_list_assign_expression(idx);
             } else if (match(idx, IDENTIFIER) && match(idx + 1, assignment_op_tokens)) {
                 return parse_assign_op_expression(idx);
-            } 
-            else if (match(idx, IF)) {
+            } else if (match(idx, IF)) {
                 return parse_if_expression(idx);
             } else if (match(idx, WHILE)) {
                 return parse_while_expression(idx);
+            } else if (match(idx, FUNCTION)) {
+                return parse_function_expression(idx);
             } else {
                 // for simple expressions, delegate directly to old parser
-                std::vector<Token> tokens;
-                tokens = tokens_from_idx(idx);
-
-                if (parsing_condition) {
-                    tokens.erase(tokens.begin());
-                    tokens.pop_back();
+                bool returnable = false;
+                if (match(idx, RETURN)) {
+                    returnable = true;
+                    idx += 1;
                 }
 
-                ArithmeticParser expr_parser(tokens);
-                Expression *exp = expr_parser.parse();
+                std::vector<Token> tokens;
+                tokens = tokens_from_idx(idx);
+                Expression *exp;
+
+                if (returnable && tokens.size() == 0) {
+                    exp = new EmptyExpression();
+                    exp->set_returnable(true);
+                } else {
+                    if (parsing_condition) {
+                        tokens.erase(tokens.begin());
+                        tokens.pop_back();
+                    }
+
+                    ArithmeticParser expr_parser(tokens);
+                    exp = expr_parser.parse();
+                    exp->set_returnable(returnable);
+                }
+
                 idx += 1; // SEMI or LBRACE
                 return exp;
             }
@@ -251,7 +266,6 @@ class Parser {
         }
 
         WhileExpression* parse_while_expression(int &idx) {
-            // std::cout << "parse_while_expression" << std::endl;
             idx += 1; // WHILE
             Expression * cond = parse_expression(idx, true);
             std::vector<Expression *> body_expressions;
@@ -266,7 +280,6 @@ class Parser {
         }
         
         IfExpression* parse_if_expression(int &idx) {
-            // std::cout << "parse_if_expression " << idx << std::endl;
             idx += 1; // IF
 
             Expression * cond = parse_expression(idx, true);
@@ -276,12 +289,16 @@ class Parser {
             while (!match(idx, RBRACE)) {
                 if_expressions.push_back(parse_expression(idx, false));
             }
-
+            
             idx += 1; // RBRACE
-            idx += 1; // ELSE
-            idx += 1; // LBRACE
-
             std::vector<Expression *> else_expressions;
+            if (!match(idx, ELSE)) {
+                return new IfExpression(cond, if_expressions, else_expressions);
+            } else {
+                idx += 1; // ELSE
+            }
+            
+            idx += 1; // LBRACE
 
             while (!match(idx, RBRACE)) {
                 else_expressions.push_back(parse_expression(idx, false));
@@ -290,6 +307,33 @@ class Parser {
             idx += 1; // RBRACE
 
             return new IfExpression(cond, if_expressions, else_expressions);
+        }
+
+        FunctionAssignmentExpression* parse_function_expression(int &idx) {
+            idx += 1; // Function
+            const std::string func_name = _tokens[idx].get_string();
+            idx += 1; // name
+            idx += 1; // LEFT_PAREN
+
+            std::vector<std::string> args;
+
+            while (!match(idx, LBRACE)) {
+                if (match(idx, IDENTIFIER)) {
+                    Token tok = _tokens[idx];
+                    args.push_back(tok.get_string());
+                }
+                idx += 1;
+            }
+
+            idx += 1; // LBRACE
+
+            std::vector<Expression*> body_expressions;
+            while (!match(idx, RBRACE)) {
+                body_expressions.push_back(parse_expression(idx, false));
+            }
+
+            idx += 1; // RBRACE
+            return new FunctionAssignmentExpression(func_name, args, body_expressions);
         }
 
     private:

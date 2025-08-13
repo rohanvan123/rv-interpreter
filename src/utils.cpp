@@ -1,73 +1,8 @@
+#include "utils.hpp"
+
 #include <fstream>
-
-void print_tokens(const std::vector<Token>& tokens) {
-    // std::cout << "[";
-    for (size_t i = 0; i < tokens.size() - 1; i++) {
-        std::cout << token_to_string(tokens[i]) << ", ";
-    }
-    std::cout << token_to_string(tokens[tokens.size() - 1]) << std::endl;
-}
-
-void print_tokens_backend(const std::vector<Token>& tokens) {
-    for (size_t i = 0; i < tokens.size() - 1; i++) {
-        std::cout << token_to_string(tokens[i]) << ",";
-    }
-    std::cout << token_to_string(tokens[tokens.size() - 1]) << std::endl;
-}
-
-void print_tokens_by_line(const std::vector<Token>& tokens) {
-    std::vector<Token> curr;
-    int line_no = 1;
-
-    for (int i = 0; i < tokens.size(); i++) {
-        Token tok = tokens[i];
-        if (tok.get_line() != line_no) {
-            print_tokens(curr);
-            curr.clear();
-            line_no = tok.get_line();
-        }
-        curr.push_back(tok);
-    }
-}
-
-void print_commands(const std::vector<std::vector<Token>>& sequence) {
-    std::cout << "[" << std::endl;
-    for (size_t i = 0; i < sequence.size() - 1; i++) {
-        std::cout << "  ";
-        print_tokens(sequence[i]);
-    }
-
-    std::cout << "  ";
-    print_tokens(sequence[sequence.size() - 1]);
-    std::cout << "]" << std::endl;
-}
-
-std::vector<std::vector<Token>> generate_sequence(std::vector<Token>& tokens) {
-    std::vector<std::vector<Token>> sequence;
-    std::vector<Token> curr;
-
-    for (size_t i = 0; i < tokens.size(); i++) {
-        if (tokens[i].get_type() == SEMI) {
-            sequence.push_back(curr);
-            curr.clear();
-        } else {
-            curr.push_back(tokens[i]);
-        }
-    }
-
-    return sequence;
-}
-
-std::string read_file_into_buffer(char *filepath) {
-    std::ifstream program_file(filepath);
-    std::string buffer;
-    std::string line;
-    while (std::getline(program_file, line)) {
-        buffer += line + "\n"; // Append each line to the buffer with a newline character
-    }
-
-    return buffer;
-}
+#include <sstream>
+#include <map>
 
 std::set<ExpressionType> returnable_exps = {
     ExpressionType::CONST_EXP,
@@ -80,9 +15,46 @@ std::set<ExpressionType> returnable_exps = {
     ExpressionType::EMPTY_EXP,
 };
 
-std::string string_of_expression(Expression* exp) {
-    // std::cout << exp << std::endl;
-    // std::cout << "called" << std::endl;
+std::string utils::read_file_into_buffer(char *filepath) {
+    std::ifstream program_file(filepath);
+    std::string buffer;
+    std::string line;
+    while (std::getline(program_file, line)) {
+        buffer += line + "\n"; // Append each line to the buffer with a newline character
+    }
+
+    return buffer;
+}
+
+bool utils::whitespace(char c) {
+    return isspace(c) || c == '\n';
+}
+
+void utils::print_tokens(const std::vector<Token>& tokens) {
+    std::ostringstream oss;
+    for (size_t i = 0; i < tokens.size(); i++) {
+        if (i > 0) oss << ", ";
+        oss << tokens[i].to_string();
+    }
+    std::cout << oss.str() << "\n";
+}
+
+void utils::print_tokens_by_line(const std::vector<Token>& tokens) {
+    std::vector<Token> curr;
+    int line_no = 1;
+
+    for (int i = 0; static_cast<size_t>(i) < tokens.size(); i++) {
+        Token tok = tokens[i];
+        if (tok.get_line() != line_no) {
+            print_tokens(curr);
+            curr.clear();
+            line_no = tok.get_line();
+        }
+        curr.push_back(tok);
+    }
+}
+
+std::string utils::string_of_expression(Expression* exp) {
     bool add_return = false;
     if (exp->is_returnable() && returnable_exps.find(exp->get_signature()) != returnable_exps.end()) add_return = true;
     std::string res = "";
@@ -256,23 +228,7 @@ std::string string_of_expression(Expression* exp) {
                 {BinaryOperator::OrOp, "OrOp, "},
 
             };
-            // switch (bin_exp->get_type()) {
-            //     case BinaryOperator::IntPlusOp: 
-            //         res += "IntPlusOp, "; 
-            //         break;
-            //     case BinaryOperator::IntMinusOp: 
-            //         res += "IntMinusOp, ";
-            //         break;
-            //     case BinaryOperator::IntTimesOp: 
-            //         res += "IntTimesOp, ";
-            //         break;
-            //     case BinaryOperator::IntDivOp: 
-            //         res += "IntDivOp, ";
-            //         break;
-            //     case BinaryOperator::ModOp: 
-            //         res += "ModOp, ";
-            //         break;
-            // };
+
             res += op_to_string[bin_exp->get_type()];
             res += string_of_expression(bin_exp->get_left());
             res += ", ";
@@ -317,7 +273,7 @@ std::string string_of_expression(Expression* exp) {
 
 }
 
-void print_evaluated_list(std::vector<Value> arr) {
+void utils::print_evaluated_list(std::vector<Value> arr) {
     std::cout << "[";
     bool first = true;
     for (Value v : arr) {
@@ -341,7 +297,7 @@ void print_evaluated_list(std::vector<Value> arr) {
     std::cout << "]";
 }
 
-std::string multiply(std::string str, int m) {
+std::string utils::multiply(std::string str, int m) {
     std::string res = "";
     while (m > 0) {
         res += str;
@@ -350,7 +306,7 @@ std::string multiply(std::string str, int m) {
     return res;
 }
 
-std::vector<Value> multiply(std::vector<Value> arr, int m) {
+std::vector<Value> utils::multiply(std::vector<Value> arr, int m) {
     std::vector<Value> res;
 
     while (m > 0) {
@@ -360,10 +316,6 @@ std::vector<Value> multiply(std::vector<Value> arr, int m) {
     return res;
 }
 
-void cleanup_expressions(std::vector<Expression*> expressions) {
-    for (Expression *e : expressions) {
-        delete e;
-    }
-
-    expressions.clear();
+void utils::cleanup_expressions(std::vector<Expression*> expressions) {
+    for (auto e : expressions) delete e;
 }

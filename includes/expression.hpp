@@ -1,6 +1,8 @@
 #ifndef EXPRESSION_HPP
 #define EXPRESSION_HPP
 
+#include "types.hpp"
+
 #include <string> 
 #include <variant>
 #include <iostream>
@@ -49,6 +51,7 @@ class Expression {
         virtual ~Expression() {}
         
         virtual Expression* clone() const = 0;
+        virtual Value evaluate(Environment& env) const = 0;
 
         ExpressionType get_signature() const { return type; }
 
@@ -65,6 +68,7 @@ class EmptyExpression : public Expression {
     public:
         EmptyExpression(): Expression(ExpressionType::EMPTY_EXP) {}
         Expression *clone() const override { return new EmptyExpression(); }
+        virtual Value evaluate(Environment& env) const override { return Value(); }
 };
 
 enum class ConstType {
@@ -93,6 +97,7 @@ class ConstExp : public Expression {
         ConstType get_type() const { return const_type; }
         Value get_val() const { return value; }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             switch (const_type) {
                 case ConstType::IntConst: return new ConstExp(std::get<int>(value.data));
@@ -113,6 +118,7 @@ class VarExp : public Expression {
         VarExp(const std::string& v): Expression(ExpressionType::VAR_EXP), var_name(v) {}
         std::string get_var_name() const { return var_name; }
         Expression* clone() const override { return new VarExp(var_name); }
+        Value evaluate(Environment& env) const override { return Value(); }
 };
 
 enum class MonadicOperator {
@@ -137,6 +143,8 @@ class MonadicExpression : public Expression {
 
         MonadicOperator get_type() const { return mon_op; }
         Expression* get_right() const { return exp; }
+
+        Value evaluate(Environment& env) const override;
 
         Expression* clone() const override { return new MonadicExpression(mon_op, exp->clone()); }
 };
@@ -181,6 +189,7 @@ class BinaryExpression : public Expression {
         Expression* get_left() const { return e1; }
         Expression* get_right() const { return e2; }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             return new BinaryExpression(bin_op, e1->clone(), e2->clone());
         }
@@ -204,6 +213,7 @@ class AssignmentExpression : public Expression {
         Expression* get_right() const { return exp; }
         bool is_reassign() const { return reassignment; }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             return new AssignmentExpression(ident, exp->clone(), reassignment);
         }
@@ -232,6 +242,7 @@ class IfExpression : public Expression {
         const std::vector<Expression*>& get_if_exps() const {return if_expressions; }
         const std::vector<Expression*>& get_else_exps() const {return else_expressions; }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             return new IfExpression(
                 conditional->clone(), 
@@ -260,6 +271,7 @@ class WhileExpression : public Expression {
         Expression* get_conditional() const { return conditional; }
         const std::vector<Expression*>& get_body_exps() const { return body_expressions; }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             return new WhileExpression(
                 conditional->clone(), 
@@ -284,6 +296,7 @@ class ListExpression : public Expression {
         const std::vector<Expression*>& get_elements() const { return elements; }
         Expression* access_element(int idx) const { return elements.at(idx); }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             return new ListExpression(
                 clone_vector<Expression*>(elements)
@@ -310,6 +323,7 @@ class ListAccessExpression : public Expression {
         Expression* get_arr_exp() const { return ident_exp; }
         Expression* get_idx_exp() const { return idx_exp; }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             return new ListAccessExpression(ident_exp->clone(), idx_exp->clone());
         }
@@ -338,6 +352,7 @@ class ListModifyExpression : public Expression {
         Expression* get_idx_exp() const { return idx_exp; }
         Expression* get_exp() const { return exp; }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             return new ListModifyExpression(
                 ident_exp->clone(),
@@ -374,6 +389,7 @@ class FunctionAssignmentExpression : public Expression {
         const std::vector<std::string>& get_arg_names() const { return arg_names; }
         size_t get_args_length() const { return arg_names.size(); }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             return new FunctionAssignmentExpression(
                 func_name, 
@@ -402,6 +418,7 @@ class FunctionCallExpression : public Expression {
         const std::vector<Expression*>& get_arg_exps() const {return arg_expressions; }
         size_t get_args_length() const { return arg_expressions.size(); }
 
+        Value evaluate(Environment& env) const override { return Value(); }
         Expression* clone() const override {
             return new FunctionCallExpression(
                 func_name, 

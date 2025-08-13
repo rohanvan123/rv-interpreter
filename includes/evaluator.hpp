@@ -2,13 +2,11 @@
 #define EVALUATOR_CPP
 
 #include "expression.hpp"
+#include "types.hpp"
 
 #include <map>
 #include <variant>
 #include <vector>
-
-using Environment = std::map<std::string, Value>;
-using FunctionEnvironment = std::map<std::string, FunctionAssignmentExpression*>;
 
 class Evaluator {
     private:

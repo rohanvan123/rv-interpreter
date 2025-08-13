@@ -43,7 +43,7 @@ void utils::print_tokens_by_line(const std::vector<Token>& tokens) {
     std::vector<Token> curr;
     int line_no = 1;
 
-    for (int i = 0; i < tokens.size(); i++) {
+    for (int i = 0; static_cast<size_t>(i) < tokens.size(); i++) {
         Token tok = tokens[i];
         if (tok.get_line() != line_no) {
             print_tokens(curr);

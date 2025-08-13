@@ -185,8 +185,8 @@ Expression * ArithmeticParser::atomic() {
             }
 
             Expression* curr = new ListAccessExpression(ident_exp, idx_exps[0]);
-            for (int i = 1; i < idx_exps.size(); i++) {
-                curr = curr = new ListAccessExpression(curr, idx_exps[i]);
+            for (int i = 1; static_cast<size_t>(i) < idx_exps.size(); i++) {
+                curr = new ListAccessExpression(curr, idx_exps[i]);
             }
 
             return curr;

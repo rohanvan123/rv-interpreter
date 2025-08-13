@@ -64,7 +64,7 @@ std::vector<Token> Parser::parse_condition(int &idx) {
 std::vector<Expression*> Parser::parse_top_level_expressions() {
     std::vector<Expression*> top_level_expressions;
     int idx = 0;
-    while (idx < _tokens.size() && !match(idx, END_OF_FILE)) {
+    while (static_cast<size_t>(idx) < _tokens.size() && !match(idx, END_OF_FILE)) {
         Expression* exp = parse_expression(idx, false);
         top_level_expressions.push_back(exp);
     }

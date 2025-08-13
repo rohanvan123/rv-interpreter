@@ -2,6 +2,7 @@
 #define EXPRESSION_HPP
 
 #include <string> 
+#include <variant>
 #include <iostream>
 #include <vector>
 

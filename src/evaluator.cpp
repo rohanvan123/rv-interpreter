@@ -99,7 +99,7 @@ Value Evaluator::evaluate_expression(Expression * exp) {
                 } else if (func_name == "remove") {
                     std::vector<Value> vec = std::get<std::vector<Value>>(evaluated_args[0].data);
                     int idx = std::get<int>(evaluated_args[1].data);
-                    if (idx < 0 || idx >= vec.size()) { throw std::runtime_error("idx out of range for remove()"); }
+                    if (idx < 0 || static_cast<size_t>(idx) >= vec.size()) { throw std::runtime_error("idx out of range for remove()"); }
                     vec.erase(vec.begin() + idx);
                     return Value(vec);
                 } else if (func_name == "type") {
@@ -185,7 +185,7 @@ Value Evaluator::evaluate_expression(Expression * exp) {
                 std::vector<Value> arr = std::get<std::vector<Value>>(va1.data);
                 int idx = std::get<int>(va2.data);
 
-                if (idx < 0 || idx >= arr.size()) {
+                if (idx < 0 || static_cast<size_t>(idx) >= arr.size()) {
                     throw std::runtime_error("Index out of bounds");
                 }
 
@@ -195,7 +195,7 @@ Value Evaluator::evaluate_expression(Expression * exp) {
                 std::string str = std::get<std::string>(va1.data);
                 int idx = std::get<int>(va2.data);
 
-                if (idx < 0 || idx >= str.size()) {
+                if (idx < 0 || static_cast<size_t>(idx) >= str.size()) {
                     throw std::runtime_error("Index out of bounds");
                 }
 
@@ -213,7 +213,7 @@ Value Evaluator::evaluate_expression(Expression * exp) {
                 std::vector<Value>& arr = std::get<std::vector<Value>>(va_list.data);
                 int idx = std::get<int>(va1.data);
 
-                if (idx < 0 || idx >= arr.size()) {
+                if (idx < 0 || static_cast<size_t>(idx) >= arr.size()) {
                     throw std::runtime_error("Index out of bounds");
                 }
                 

@@ -24,7 +24,7 @@ def write_program_to_file(program, filename):
 
 def interpret_program(program_file):
     # compile_res = subprocess.run("g++ -std=c++20 src/main.cpp -o bin/main -w", shell=True, text=True, capture_output=True)
-    exe_res = subprocess.run(f"./bin/main {program_file}", shell=True, text=True, capture_output=True)
+    exe_res = subprocess.run(f"./bin/main {program_file} --output-lexer --output-parser", shell=True, text=True, capture_output=True)
     return exe_res
 
 def parse_program_output(raw_ouput):
@@ -57,14 +57,14 @@ def interpret():
     
     body = request.json
     code_commands = body["code"]
-    file_path = "./test_code/test.rv"
+    file_path = "./backend_code/user_script.rv"
 
     if os.path.isfile(file_path):
         # clear the contents
         open(file_path, 'w').close()
 
     write_program_to_file(code_commands, file_path)
-    exec_result = interpret_program("test_code/test.rv")
+    exec_result = interpret_program(file_path)
     response_body = parse_program_output(exec_result.stdout)
 
     return response_body, 200

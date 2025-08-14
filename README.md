@@ -35,8 +35,12 @@ g++ -std=c++20 src/main.cpp -o bin/main
 ### 3. Run
 
 ```run
-./bin/main <PATH_TO_FILE>
+./bin/main <PATH_TO_FILE> [--output-lexer] [--output-parser]
 ```
+
+- `<PATH_TO_FILE>` is a required argument that must be end in a .rv extension
+- `[--output-lexer]` is an optional arg to print the lexer output
+- `[--output-parser]` is an optional arg to print the parser output
 
 ---
 

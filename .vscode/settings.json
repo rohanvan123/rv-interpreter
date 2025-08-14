@@ -73,7 +73,9 @@
     "unordered_set": "cpp",
     "functional": "cpp",
     "memory_resource": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "__verbose_abort": "cpp",
+    "bit": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

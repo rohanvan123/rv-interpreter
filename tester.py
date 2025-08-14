@@ -12,7 +12,7 @@ class TestCppProgram(unittest.TestCase):
 
     def run_test_case(self, input_file, expected_file, test_name):
         print(f"🔍 Running test case: {test_name}")
-        result = subprocess.run(["./bin/test", input_file], capture_output=True, text=True)
+        result = subprocess.run(["./bin/test", input_file, "--output-lexer", "--output-parser"], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, "Program crashed or exited with error")
 
         with open(expected_file) as f:

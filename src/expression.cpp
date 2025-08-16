@@ -67,36 +67,3 @@ Value MonadicExpression::evaluate(Environment& env) const {
 
     return Value();
 }
-
-std::string Value::string_of_list(std::vector<Value> arr) const {
-    std::ostringstream oss;
-    oss << "[";
-    bool first = true;
-    for (Value v : arr) {
-        if (!first) oss << ", ";
-        oss << v.to_string();
-        first = false;
-    }
-    oss << "]";
-    return oss.str();
-}
-
-
-std::string Value::to_string() const {
-    if (std::holds_alternative<int>(data)) {
-        int i = std::get<int>(data);
-        return std::to_string(i);
-    } else if (std::holds_alternative<bool>(data)) {
-        bool b = std::get<bool>(data);
-        return b ? "true" : "false";
-    } else if (std::holds_alternative<std::string>(data)) {
-        std::string s = std::get<std::string>(data);
-        return s;
-    } else if ((std::holds_alternative<std::vector<Value>>(data))) {
-        std::vector<Value> s = std::get<std::vector<Value>>(data);
-        return string_of_list(s);
-
-    }
-
-    return "UNKOWN VALUE";
-};

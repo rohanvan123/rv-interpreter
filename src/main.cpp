@@ -8,6 +8,7 @@
 #include "evaluator.hpp"
 #include "utils.hpp"
 #include "ir_generator.hpp"
+#include "interpreter.hpp"
 
 const std::string DELIMITER = "=================================";
 
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]) {
 
     if (output_lexer) {
         print_lexer_output(tokens);
-        std::cout << DELIMITER << std::endl;
+        std::cout << DELIMITER << "\n";
     }
 
     Parser np(tokens);
@@ -49,15 +50,19 @@ int main(int argc, char *argv[]) {
 
     if (output_parser) {
         print_parser_output(expressions);
-        std::cout << DELIMITER << std::endl;
+        std::cout << DELIMITER << "\n";
     }
 
-    // Evaluator evaluator;
-    // evaluator.evaluate_commands(expressions);
+    Evaluator evaluator;
+    evaluator.evaluate_commands(expressions);
 
-    IRGenerator gen;
-    std::vector<Instruction> instr = gen.generate_ir_code(expressions);
-    gen.print_instructions();
+    // IRGenerator gen;
+    // std::vector<Instruction> instr = gen.generate_ir_code(expressions);
+    // gen.print_instructions();
+    // std::cout << DELIMITER << "\n";
+
+    // Interpreter interpreter(gen);
+    // interpreter.execute();
     
-    utils::cleanup_expressions(expressions);
+    // utils::cleanup_expressions(expressions);
 }

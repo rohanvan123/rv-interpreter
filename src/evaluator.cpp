@@ -91,45 +91,11 @@ Value Evaluator::evaluate_expression(Expression * exp) {
             }
 
             if (is_builtin_func(func_name)) {
-                if (func_name == "append") {
-                    std::vector<Value> vec = std::get<std::vector<Value>>(evaluated_args[0].data);
-                    Value v = (evaluated_args[1].data);
-                    vec.push_back(v);
-                    return Value(vec);
-                } else if (func_name == "remove") {
-                    std::vector<Value> vec = std::get<std::vector<Value>>(evaluated_args[0].data);
-                    int idx = std::get<int>(evaluated_args[1].data);
-                    if (idx < 0 || static_cast<size_t>(idx) >= vec.size()) { throw std::runtime_error("idx out of range for remove()"); }
-                    vec.erase(vec.begin() + idx);
-                    return Value(vec);
-                } else if (func_name == "type") {
-                    Value arg = evaluated_args[0];
-                    if (std::holds_alternative<int>(arg.data)) {
-                        return Value("int");
-                    } else if (std::holds_alternative<std::string>(arg.data)) {
-                        return Value("string");
-                    } else if (std::holds_alternative<bool>(arg.data)) {
-                        return Value("bool");
-                    } else if (std::holds_alternative<std::vector<Value>>(arg.data)) {
-                        return Value("list");
-                    } else {
-                        return Value("other");
-                    }
-                } else if (func_name == "string") {
-                    Value arg = evaluated_args[0];
-                    if (std::holds_alternative<int>(arg.data)) {
-                        int a = std::get<int>(arg.data);
-                        return Value(std::to_string(a));
-                    } else if (std::holds_alternative<std::string>(arg.data)) {
-                        return arg.data;
-                    } else if (std::holds_alternative<bool>(arg.data)) {
-                        bool b = std::get<bool>(arg.data);
-                        std::string result = b ? "true" : "false";
-                        return Value(result);
-                    } else if (std::holds_alternative<std::vector<Value>>(arg.data)) {
-                        return Value("list");
-                    }
-                }
+                if (func_name == "append") return builtin::append(evaluated_args[0], evaluated_args[1]);
+                if (func_name == "remove") return builtin::remove(evaluated_args[0], evaluated_args[1]);
+                if (func_name == "type") return builtin::type(evaluated_args[0]);
+                if (func_name == "string") return builtin::string(evaluated_args[0]);
+                throw std::runtime_error("unknown builtin");
             } else if (func_env.find(func_name) == func_env.end()) {
                 throw std::runtime_error("function does not exist");
             }
@@ -226,127 +192,36 @@ Value Evaluator::evaluate_expression(Expression * exp) {
             Value va1 = evaluate_expression(bin_exp->get_left());
             Value va2 = evaluate_expression(bin_exp->get_right());
 
-            if (std::holds_alternative<int>(va1.data) && std::holds_alternative<int>(va2.data)) {
-                int val1 = std::get<int>(va1.data);
-                int val2 = std::get<int>(va2.data);
-                switch (bin_exp->get_type()) {
-                    case BinaryOperator::IntPlusOp: return Value(val1 + val2);
-                    case BinaryOperator::IntMinusOp: return Value(val1 - val2);
-                    case BinaryOperator::IntTimesOp: return Value(val1 * val2);
-                    case BinaryOperator::IntDivOp: return Value(val1 / val2);
-                    case BinaryOperator::IntPowOp: {
-                        int res = static_cast<int>(std::pow(val1, val2));
-                        return Value(res);
-                    }
-                    case BinaryOperator::ModOp: return Value(val1 % val2);
-                    case BinaryOperator::GtOp: return Value(val1 > val2);
-                    case BinaryOperator::GteOp: return Value(val1 >= val2);
-                    case BinaryOperator::LtOp: return Value(val1 < val2);
-                    case BinaryOperator::LteOp: return Value(val1 <= val2);
-                    case BinaryOperator::EqualityOp: return Value(val1 == val2);
-                    case BinaryOperator::NotEqualsOp: return Value(val1 != val2);
-                    default: throw std::runtime_error("Incorrect BinOp (int): " + std::to_string(int(bin_exp->get_type())));
-                };
-            } else if (std::holds_alternative<bool>(va1.data) && std::holds_alternative<bool>(va2.data)) {
-                bool val1 = std::get<bool>(va1.data);
-                bool val2 = std::get<bool>(va2.data);
-
-                switch (bin_exp->get_type()) {
-                    case BinaryOperator::EqualityOp: return Value(val1 == val2);
-                    case BinaryOperator::NotEqualsOp: return Value(val1 != val2);
-                    case BinaryOperator::AndOp: return Value(val1 && val2);
-                    case BinaryOperator::OrOp: return Value(val1 || val2);
-                    default: throw std::runtime_error("Incorrect BinOp (bool): " + std::to_string(int(bin_exp->get_type())));
-
-                };
-            } 
-            else if (std::holds_alternative<std::string>(va1.data) && std::holds_alternative<std::string>(va2.data)) {
-                std::string s1 = std::get<std::string>(va1.data);
-                std::string s2 = std::get<std::string>(va2.data);
-                switch (bin_exp->get_type()) {
-                    case BinaryOperator::IntPlusOp: return Value(s1 + s2);
-                    default: throw std::runtime_error("Incorrect BinOp (string): " + std::to_string(int(bin_exp->get_type())));
-                }
-            } 
-            else if (std::holds_alternative<std::string>(va1.data) && std::holds_alternative<int>(va2.data)) {
-                // String MULTIPLICATION 
-                std::string str = std::get<std::string>(va1.data);
-                int multiplier = std::get<int>(va2.data);
-                switch (bin_exp->get_type()) {
-                    case BinaryOperator::IntTimesOp: return Value(utils::multiply(str, multiplier));
-                    default: throw std::runtime_error("Incorrect BinOp (string, int): " + std::to_string(int(bin_exp->get_type())));
-                }
-            } else if (std::holds_alternative<std::vector<Value>>(va1.data) && std::holds_alternative<std::vector<Value>>(va2.data)) {
-                std::vector<Value> v1 = std::get<std::vector<Value>>(va1.data);
-                std::vector<Value> v2 = std::get<std::vector<Value>>(va2.data);
-                switch (bin_exp->get_type()) {
-                    case BinaryOperator::IntPlusOp: {
-                        v1.insert(v1.end(), v2.begin(), v2.end());
-                        return Value(v1);
-                    }
-                    default: throw std::runtime_error("Incorrect BinOp (list, list): " + std::to_string(int(bin_exp->get_type())));
-                }
-            } else if (std::holds_alternative<std::vector<Value>>(va1.data) && std::holds_alternative<int>(va2.data)) {
-                std::vector<Value> v1 = std::get<std::vector<Value>>(va1.data);
-                int v2 = std::get<int>(va2.data);
-
-                switch (bin_exp->get_type()) {
-                    case BinaryOperator::IntTimesOp: return Value(utils::multiply(v1, v2));
-                    default: throw std::runtime_error("Incorrect BinOp (list, int): " + std::to_string(int(bin_exp->get_type())));
-                }
-            }
+            switch (bin_exp->get_type()) {
+                case BinaryOperator::IntPlusOp: return va1 + va2;
+                case BinaryOperator::IntMinusOp: return va1 - va2;
+                case BinaryOperator::IntTimesOp: return va1 * va2;
+                case BinaryOperator::IntDivOp: return va1 / va2;
+                case BinaryOperator::IntPowOp: return va1.pow(va2);
+                case BinaryOperator::ModOp: return va1 % va2;
+                case BinaryOperator::GtOp: return va1 > va2;
+                case BinaryOperator::GteOp: return va1 >= va2;
+                case BinaryOperator::LtOp: return va1 < va2;
+                case BinaryOperator::LteOp: return va1 <= va2;
+                case BinaryOperator::EqualityOp: return va1 == va2;
+                case BinaryOperator::NotEqualsOp: return va1 != va2;
+                case BinaryOperator::AndOp: return va1 && va2;
+                case BinaryOperator::OrOp: return va1 || va2;
+                default: throw std::runtime_error("Incorrect BinOp (int): " + std::to_string(int(bin_exp->get_type())));
+            };
         }
         case ExpressionType::MON_EXP: {
             // std::cout << "mon" << std::endl;
             MonadicExpression * mon_exp = dynamic_cast<MonadicExpression*>(exp);
             Value val = evaluate_expression(mon_exp->get_right());
 
-            if (std::holds_alternative<std::string>(val.data)) {
-                std::string s = std::get<std::string>(val.data);
-                switch (mon_exp->get_type()) {
-                    case MonadicOperator::PrintOp: {
-                        std::cout << s << std::endl;
-                        return Value();
-                    }
-                    case MonadicOperator::SizeOp: return Value(static_cast<int>(s.size()));
-                    default: throw std::runtime_error("Incorrect MonOp (string): " + std::to_string(int(mon_exp->get_type())));
-                }
-            } else if (std::holds_alternative<int>(val.data)) {
-                int i = std::get<int>(val.data);
-                switch (mon_exp->get_type()) {
-                    case MonadicOperator::IntNegOp: return Value(-1 * i);
-                    case MonadicOperator::PrintOp: {
-                        std::cout << i << std::endl;
-                        return Value();
-                    }
-                    default: throw std::runtime_error("Incorrect MonOp (int): " + std::to_string(int(mon_exp->get_type())));
-                };
-            } else if (std::holds_alternative<bool>(val.data)) {
-                bool b = std::get<bool>(val.data);
-                switch (mon_exp->get_type()) {
-                    case MonadicOperator::NotOp: return Value(!b);
-                    case MonadicOperator::PrintOp: {
-                        std::string bool_str = b ? "true" : "false";
-                        std::cout << bool_str << std::endl;
-                        return Value();
-                    }
-                    default: throw std::runtime_error("Incorrect MonOp (bool): " + std::to_string(int(mon_exp->get_type())));
-                };
-                
-            } else if (std::holds_alternative<std::vector<Value>>(val.data)) {
-                std::vector<Value> arr = std::get<std::vector<Value>>(val.data);
-
-                switch (mon_exp->get_type()) {
-                    case MonadicOperator::PrintOp: {
-                        utils::print_evaluated_list(arr);
-                        std::cout << "\n";
-                        return Value();
-                    }
-                    case MonadicOperator::SizeOp: return Value(static_cast<int>(arr.size()));
-                    default: throw std::runtime_error("Incorrect MonOp (list): " + std::to_string(int(mon_exp->get_type())));
-                };
-            }
-            break;
+            switch (mon_exp->get_type()) {
+                case MonadicOperator::IntNegOp: return -val;
+                case MonadicOperator::NotOp: return !val;
+                case MonadicOperator::PrintOp: std::cout << val.to_string() << "\n"; return Value();
+                case MonadicOperator::SizeOp: return val.size();
+                default: throw std::runtime_error("Incorrect MonOp (int): " + std::to_string(int(mon_exp->get_type())));
+            };
         }
         case ExpressionType::LET_EXP: {
             // std::cout << "let" << std::endl;

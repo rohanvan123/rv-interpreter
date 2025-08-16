@@ -1,5 +1,6 @@
 bin/obj/interpreter.o: src/interpreter.cpp includes/interpreter.hpp \
-  includes/ir_generator.hpp includes/expression.hpp includes/types.hpp
+  includes/ir_generator.hpp includes/expression.hpp includes/types.hpp \
+  includes/value.hpp
 
 includes/interpreter.hpp:
 
@@ -8,3 +9,5 @@ includes/ir_generator.hpp:
 includes/expression.hpp:
 
 includes/types.hpp:
+
+includes/value.hpp:

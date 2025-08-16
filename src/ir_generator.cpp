@@ -353,6 +353,12 @@ void IRGenerator::print_instructions() const {
     }
 }
 
+void IRGenerator::print_ident_table() const {
+    for (size_t i = 0; i < _ident_table.size(); i++) {
+        std::cout << i << ": " << _ident_table[i] << "\n";
+    }
+}
+
 std::string reg_string(int reg) {
     switch (reg) {
         // General Purpose Registers

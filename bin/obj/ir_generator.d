@@ -1,8 +1,10 @@
 bin/obj/ir_generator.o: src/ir_generator.cpp includes/ir_generator.hpp \
-  includes/expression.hpp includes/types.hpp
+  includes/expression.hpp includes/types.hpp includes/value.hpp
 
 includes/ir_generator.hpp:
 
 includes/expression.hpp:
 
 includes/types.hpp:
+
+includes/value.hpp:

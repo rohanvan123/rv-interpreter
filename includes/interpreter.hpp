@@ -6,17 +6,29 @@
 
 #include <string>
 #include <vector>
+#include <stack>
+#include <map>
 
 class Interpreter {
 private:
-    const std::vector<Instruction>& _instr;
-    const std::vector<std::string>& _ident_table;
-    // const std::vector<Value>& _const_table;
-    // const std::vector<FunctionInfo>& _func_table;
+    // IRGenerator& _gen;
+    std::vector<Instruction>& _instr;
+    std::vector<std::string>& _ident_table;
+    std::vector<Value>& _const_table;
+    std::vector<FunctionInfo>& _func_table;
+    std::map<int, Value> register_file;
+
+    int pc = 0;
+    // int v0 = 0;
+    Environment env;
+    std::stack<int> program_stack;
+
 public:
-    Interpreter(const IRGenerator& gen);
+    Interpreter(IRGenerator& gen);
     void execute();
+    void print_reg_file() const;
+    void print_env() const;
 
 };
 
-#endif
+#endif // INTERPRETER_CPP

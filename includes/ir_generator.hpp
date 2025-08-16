@@ -96,9 +96,8 @@ private:
     
     int store_func_assign_exp(FunctionAssignmentExpression* func_exp);
     int generate_ir_block(Expression* exp);
-    
+
     OPCode map_binexp_to_opcode(BinaryOperator op) const;
-    void print_instruction(Instruction instr) const;
 
 public:
     IRGenerator() {}
@@ -110,9 +109,9 @@ public:
     std::vector<FunctionInfo> _func_table;
 
     // helpers
-
-    
+    void print_ident_table() const;
     void print_instructions() const;
+    void print_instruction(Instruction instr) const;
 };
 
 #endif // IR_GENERATOR_HPP

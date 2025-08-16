@@ -3,6 +3,7 @@
 
 #include "expression.hpp"
 #include "token.hpp"
+#include "ir_generator.hpp"
 
 #include <set>
 

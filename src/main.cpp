@@ -7,6 +7,7 @@
 #include "parser.hpp"
 #include "evaluator.hpp"
 #include "utils.hpp"
+#include "ir_generator.hpp"
 
 const std::string DELIMITER = "=================================";
 
@@ -51,8 +52,12 @@ int main(int argc, char *argv[]) {
         std::cout << DELIMITER << std::endl;
     }
 
-    Evaluator evaluator;
-    evaluator.evaluate_commands(expressions);
+    // Evaluator evaluator;
+    // evaluator.evaluate_commands(expressions);
+
+    IRGenerator gen;
+    std::vector<Instruction> instr = gen.generate_ir_code(expressions);
+    gen.print_instructions();
     
     utils::cleanup_expressions(expressions);
 }

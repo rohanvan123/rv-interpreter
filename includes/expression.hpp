@@ -17,6 +17,9 @@ class Value {
         ValueData data;
         Value() = default;
         Value(ValueData vd): data(vd) {}
+        
+        std::string to_string() const;
+        std::string string_of_list(std::vector<Value> arr) const;
 };
 
 enum class ExpressionType {

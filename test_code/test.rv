@@ -1,21 +1,7 @@
-l
-e
-t
+let y = 1;
 
-x
+while (true) {
+    print(x);
+}
 
-=
-
-5
-;
-
-
-p
-r
-i
-n
-t
-(
-x
-)
-;
+print(32);

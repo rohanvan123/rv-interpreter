@@ -9,6 +9,13 @@
 #include <stack>
 #include <map>
 
+
+struct RvStackFrame {
+    std::map<int, Value> register_file;
+    Environment env;
+    int return_addr;
+};
+
 class Interpreter {
 private:
     // IRGenerator& _gen;
@@ -16,12 +23,15 @@ private:
     std::vector<std::string>& _ident_table;
     std::vector<Value>& _const_table;
     std::vector<FunctionInfo>& _func_table;
-    std::map<int, Value> register_file;
+    // std::map<int, Value> register_file;
 
     int pc = 0;
-    // int v0 = 0;
-    Environment env;
-    std::stack<int> program_stack;
+    Value v0 = Value();
+
+    RvStackFrame* current_frame;
+    std::stack<RvStackFrame> program_stack;
+    void push_stack_frame();
+    void pop_stack_frame();
 
 public:
     Interpreter(IRGenerator& gen);

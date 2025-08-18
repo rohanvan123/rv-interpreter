@@ -12,8 +12,7 @@ using ValueData = std::variant<int, bool, std::string, std::vector<Value>>;
 
 class Value {
 private:
-    bool equals(const Value& rhs) const; // wrapper functions
-    bool not_equals(const Value& rhs) const;
+    
 public:
     ValueData data;
     Value() = default;
@@ -27,6 +26,8 @@ public:
     std::string to_string() const;
     std::string string_of_list(std::vector<Value> arr) const;
     std::string get_type() const;
+    bool equals(const Value& rhs) const; // wrapper functions
+    bool not_equals(const Value& rhs) const;
 
     // overloaded ops
     Value operator+(const Value& rhs) const;

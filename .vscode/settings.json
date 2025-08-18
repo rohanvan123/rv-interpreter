@@ -76,7 +76,8 @@
     "utility": "cpp",
     "__verbose_abort": "cpp",
     "bit": "cpp",
-    "format": "cpp"
+    "format": "cpp",
+    "queue": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

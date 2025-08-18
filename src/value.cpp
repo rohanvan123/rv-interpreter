@@ -86,7 +86,7 @@ Value Value::operator*(const Value& rhs) const {
         int multiplier = std::get<int>(rhs.data);
         return Value(utils::multiply(v1, multiplier));
     }
-    throw std::runtime_error("incorrect types for * operator");
+    throw std::runtime_error("incorrect types for * operator " + get_type() + " " + rhs.get_type());
 }
 
 Value Value::operator/(const Value& rhs) const {

@@ -48,7 +48,27 @@ Expression * ArithmeticParser::parse() {
 }
 
 Expression * ArithmeticParser::expression() {
-    return comparison();
+    return disjunction();
+}
+
+Expression * ArithmeticParser::disjunction() {
+    Expression * left = conjunction();
+    while (match(1, OR)) {
+        Expression * right = conjunction();
+        left = new BinaryExpression(BinaryOperator::OrOp, left, right);
+    }
+
+    return left;
+}
+
+Expression * ArithmeticParser::conjunction() {
+    Expression * left = comparison();
+    while (match(1, AND)) {
+        Expression * right = comparison();
+        left = new BinaryExpression(BinaryOperator::AndOp, left, right);
+    }
+
+    return left;
 }
 
 Expression * ArithmeticParser::comparison() {

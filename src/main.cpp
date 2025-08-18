@@ -53,16 +53,18 @@ int main(int argc, char *argv[]) {
         std::cout << DELIMITER << "\n";
     }
 
-    Evaluator evaluator;
-    evaluator.evaluate_commands(expressions);
+    // Evaluator evaluator;
+    // evaluator.evaluate_commands(expressions);
 
-    // IRGenerator gen;
-    // std::vector<Instruction> instr = gen.generate_ir_code(expressions);
-    // gen.print_instructions();
-    // std::cout << DELIMITER << "\n";
+    IRGenerator gen;
+    std::vector<Instruction> instr = gen.generate_ir_code(expressions);
+    gen.print_instructions();
+    std::cout << DELIMITER << "\n";
 
-    // Interpreter interpreter(gen);
-    // interpreter.execute();
+    Interpreter interpreter(gen);
+    interpreter.execute();
+    // interpreter.print_reg_file();
+    // interpreter.print_env();
     
-    // utils::cleanup_expressions(expressions);
+    utils::cleanup_expressions(expressions);
 }

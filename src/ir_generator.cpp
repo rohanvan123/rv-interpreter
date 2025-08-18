@@ -86,7 +86,7 @@ int IRGenerator::gen_const_exp_ir(ConstExp* const_exp) {
     _instr.push_back({ITYPE, LOAD_CONST_OP, curr_reg, table_idx, -1});
 
     if (const_exp->is_returnable()) {
-        _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg -1});
+        _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg, -1});
         _instr.push_back({JTYPE, RET, -1, -1, -1});
     }
 
@@ -133,17 +133,17 @@ int IRGenerator::gen_mon_exp_ir(MonadicExpression* mon_exp) {
             _instr.push_back({RTYPE, NOT_OP, curr_reg, t1, -1});
 
             if (mon_exp->is_returnable()) {
-                _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg -1});
+                _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg, -1});
                 _instr.push_back({JTYPE, RET, -1, -1, -1});
             }
 
             return curr_reg++;
         }
         case MonadicOperator::IntNegOp: {
-            _instr.push_back({ITYPE, MULI_OP, curr_reg, t1, -1});
+            _instr.push_back({ITYPE, NEG_OP, curr_reg, t1, -1});
 
             if (mon_exp->is_returnable()) {
-                _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg -1});
+                _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg, -1});
                 _instr.push_back({JTYPE, RET, -1, -1, -1});
             }
 
@@ -157,7 +157,7 @@ int IRGenerator::gen_mon_exp_ir(MonadicExpression* mon_exp) {
             _instr.push_back({RTYPE, SIZE_OP, curr_reg, t1, -1}); // cur_reg = size(t1)
 
             if (mon_exp->is_returnable()) {
-                _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg -1});
+                _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg, -1});
                 _instr.push_back({JTYPE, RET, -1, -1, -1});
             }
 
@@ -175,7 +175,7 @@ int IRGenerator::gen_bin_exp_ir(BinaryExpression* bin_exp) {
     _instr.push_back({ITYPE, bin_op_code, curr_reg, t1, t2});
 
     if (bin_exp->is_returnable()) {
-        _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg -1});
+        _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg, -1});
         _instr.push_back({JTYPE, RET, -1, -1, -1});
     }
 
@@ -250,7 +250,8 @@ int IRGenerator::gen_func_call_exp_ir(FunctionCallExpression* call_exp) {
 
     const std::vector<std::string> arg_names = func_exp->get_arg_names();
     const std::vector<Expression*> arg_exps = call_exp->get_arg_exps();
-
+    
+    _instr.push_back({RTYPE, PUSH, -1, -1, -1}); // PUSH PC (-1) reg onto stack
     // load variables
     for (size_t i = 0; i < call_exp->get_args_length(); i++) {
         std::string argi = arg_names[i];
@@ -263,7 +264,6 @@ int IRGenerator::gen_func_call_exp_ir(FunctionCallExpression* call_exp) {
         _instr.push_back({RTYPE, STORE_VAR_OP, ident_idx, t1, -1}); // Var name -> curr_reg
     }
 
-    _instr.push_back({RTYPE, PUSH, -1, -1, -1}); // PUSH PC (-1) reg onto stack
     _instr.push_back({JTYPE, JUMPF, fid, -1}); // FID is evaluated eventually using the table to get the start adress
     _instr.push_back({RTYPE, MOVE_OP, curr_reg, -2, -1}); // stores the return value of the function (if it returns)
 
@@ -305,7 +305,6 @@ std::string to_string(OPCode op) {
         case SUBI_OP: return "SUBI";
         case DIV_OP: return "DIV";
         case DIVI_OP: return "DIVI";
-        case NOT_OP: return "NOT";
         case POW_OP: return "POW";
         case MOD_OP: return "MOD";
         
@@ -324,6 +323,8 @@ std::string to_string(OPCode op) {
 
         case PRINT_OP: return "PRINT";
         case SIZE_OP: return "SIZE";
+        case NEG_OP: return "NEG";
+        case NOT_OP: return "NOT";
 
         case JNT: return "JNT";
         case JUMP: return "JUMP";
@@ -394,6 +395,7 @@ void IRGenerator::print_instruction(Instruction inst) const {
         
         case (PRINT_OP): std::cout << "R" << inst.arg1; break;
         case (SIZE_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2; break;
+        case (NEG_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2; break;
         case (JNT): std::cout << "R" << inst.arg1 << " " << inst.arg2; break;
         case (JUMP): std::cout << inst.arg1; break;
         case (JUMPF): std::cout << _func_table[inst.arg1].name; break;

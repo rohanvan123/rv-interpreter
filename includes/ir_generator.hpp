@@ -40,6 +40,7 @@ enum OPCode {
     NOT_OP,
     PRINT_OP,
     SIZE_OP,
+    NEG_OP,
 
     NOP, // skip
     END,

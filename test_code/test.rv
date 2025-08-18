@@ -1,3 +1,8 @@
-let y = 1;
-let x = 4;
-print(x + y);
+function f(n) {
+    if (n == 1 || n == 0) { 
+        return 1;
+    }
+    return f(n - 2) + f(n - 1);
+}
+
+print(f(5));

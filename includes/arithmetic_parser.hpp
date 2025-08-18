@@ -22,6 +22,8 @@ class ArithmeticParser {
         bool match(int count, ...);
 
         Expression * expression();
+        Expression * disjunction();
+        Expression * conjunction();
         Expression * comparison();
         Expression * term();
         Expression * factor();

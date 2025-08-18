@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <set>
 
 class Value;
 
@@ -48,16 +49,6 @@ public:
     Value operator-() const;
     Value operator!() const;
     Value size() const;
-
-    // built ins
 };
-
-namespace builtin {
-Value append(Value v, Value x);
-Value remove(Value v, Value x);
-Value type(Value v);
-Value string(Value v);
-
-}
 
 #endif // VALUE_HPP

@@ -4,23 +4,34 @@
 #include "expression.hpp"
 #include "types.hpp"
 
-#include <map>
-#include <variant>
 #include <vector>
+#include <stack>
 
 class Evaluator {
-    private:
-        Environment env;
-        FunctionEnvironment func_env;
+private:
+    // Environment env;
+    FunctionEnvironment func_env;
 
-        Value evaluate_expression(Expression * exp);
+    std::stack<Environment> env_stack;
+    Environment* curr_env;
+    void push_env();
+    void pop_env();
 
-    public:
-        void evaluate_commands(const std::vector<Expression*>& commands) {
-            for (Expression * exp : commands) {
-                auto result = evaluate_expression(exp);
-            }
+    std::string string_of_env();
+
+    std::pair<Value, bool>  evaluate_expression(Expression * exp);
+
+public:
+    Evaluator() { 
+        env_stack.push({});
+        curr_env = &env_stack.top();
+    }
+
+    void evaluate_commands(const std::vector<Expression*>& commands) {
+        for (Expression * exp : commands) {
+            auto result = evaluate_expression(exp);
         }
+    }
 };
 
 #endif // EVALUATOR_CPP

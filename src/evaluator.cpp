@@ -1,40 +1,111 @@
 #include "evaluator.hpp"
 #include "utils.hpp"
+#include "builtins.hpp"
 
 #include <cmath>
+#include <sstream>
 
-bool is_builtin_func(const std::string& func_name) {
-    static const std::set<std::string> _builtin_functions = {"append", "remove", "type", "string"};
-    return _builtin_functions.find(func_name) != _builtin_functions.end();
+void Evaluator::push_env() {
+    Environment env_copy = *curr_env; // make a copy of the topmost frame
+    env_stack.push(env_copy);
+    curr_env = &env_stack.top(); // set current frame to the top of the stack (this new frame)
+}
+void Evaluator::pop_env() {
+    env_stack.pop();
+    curr_env = &env_stack.top();
 }
 
-Value Evaluator::evaluate_expression(Expression * exp) {
+std::string Evaluator::string_of_env() {
+    std::ostringstream oss;
+    oss << "{";
+    bool first = true;
+    for (const auto& pair : *curr_env) {
+        if (!first) oss << ", ";
+        oss << pair.first << ": " << pair.second.to_string();
+        first = false;
+    }
+    oss << "}";
+    return oss.str();
+}
+
+std::pair<Value, bool> Evaluator::evaluate_expression(Expression * exp) {
+    bool returnable = exp->is_returnable();
+
     switch (exp->get_signature()) {
         case ExpressionType::EMPTY_EXP: {
-            return Value();
+            return {Value(), returnable};
         }
         case ExpressionType::CONST_EXP: {
             // std::cout << "const" << std::endl;
             ConstExp * const_exp = dynamic_cast<ConstExp*>(exp);
-            
+
             switch (const_exp->get_type()) {
-                case ConstType::BoolConst: return const_exp->value;
-                case ConstType::IntConst: return const_exp->value;
-                case ConstType::StringConst: return const_exp->value;
+                case ConstType::BoolConst: return {const_exp->value, returnable};
+                case ConstType::IntConst: return {const_exp->value, returnable};
+                case ConstType::StringConst: return {const_exp->value, returnable};
             };
         }
         case ExpressionType::VAR_EXP: {
             VarExp * var_exp = dynamic_cast<VarExp*>(exp);
             std::string var_name = var_exp->get_var_name();
+            Environment& env = *curr_env;
+
             if (env.find(var_name) == env.end()) {
                 throw std::runtime_error("Error identifier " + var_name + " does not exist in store");
             }
 
-            return env[var_name];
+            return {env[var_name], returnable};
+        }
+        case ExpressionType::BIN_EXP: {
+            BinaryExpression * bin_exp = dynamic_cast<BinaryExpression*>(exp);
+            Value va1 = evaluate_expression(bin_exp->get_left()).first;
+            Value va2 = evaluate_expression(bin_exp->get_right()).first;
+            Value res;
+            switch (bin_exp->get_type()) {
+                case BinaryOperator::IntPlusOp: res = va1 + va2; break;
+                case BinaryOperator::IntMinusOp: res = va1 - va2; break;
+                case BinaryOperator::IntTimesOp: res = va1 * va2; break;
+                case BinaryOperator::IntDivOp: res = va1 / va2; break;
+                case BinaryOperator::IntPowOp: res = va1.pow(va2); break;
+                case BinaryOperator::ModOp: res = va1 % va2; break;
+                case BinaryOperator::GtOp: res = va1 > va2; break;
+                case BinaryOperator::GteOp: res = va1 >= va2; break;
+                case BinaryOperator::LtOp: res = va1 < va2; break;
+                case BinaryOperator::LteOp: res = va1 <= va2; break;
+                case BinaryOperator::EqualityOp: res = va1 == va2; break;
+                case BinaryOperator::NotEqualsOp: res = va1 != va2; break;
+                case BinaryOperator::AndOp: res = va1 && va2; break;
+                case BinaryOperator::OrOp: res = va1 || va2; break;
+                default: throw std::runtime_error("Incorrect BinOp (int): " + std::to_string(int(bin_exp->get_type())));
+            };
+
+            return {res, returnable};
+        }
+        case ExpressionType::MON_EXP: {
+            // std::cout << "mon" << std::endl;
+            MonadicExpression * mon_exp = dynamic_cast<MonadicExpression*>(exp);
+            Value val = evaluate_expression(mon_exp->get_right()).first;
+
+            switch (mon_exp->get_type()) {
+                case MonadicOperator::IntNegOp: return {-val, returnable};
+                case MonadicOperator::NotOp: return {!val, returnable};
+                case MonadicOperator::PrintOp: std::cout << val.to_string() << "\n"; return {Value(), false}; // cannot return print statement
+                case MonadicOperator::SizeOp: return {val.size(), returnable};
+                default: throw std::runtime_error("Incorrect MonOp (int): " + std::to_string(int(mon_exp->get_type())));
+            };
+        }
+        case ExpressionType::LET_EXP: {
+            // std::cout << "let" << std::endl;
+            AssignmentExpression * let_exp = dynamic_cast<AssignmentExpression*>(exp);
+            Value val = evaluate_expression(let_exp->get_right()).first;
+            std::string var_name = let_exp->get_id();
+            Environment& env = *curr_env;
+            env[var_name] = val;
+            return {val, false};
         }
         case ExpressionType::IF_EXP: {
             IfExpression * if_statement = dynamic_cast<IfExpression*>(exp);
-            Value cond_val = evaluate_expression(if_statement->get_conditional());
+            Value cond_val = evaluate_expression(if_statement->get_conditional()).first;
 
             if (std::holds_alternative<bool>(cond_val.data)) {
                 bool b = std::get<bool>(cond_val.data);
@@ -43,13 +114,11 @@ Value Evaluator::evaluate_expression(Expression * exp) {
 
                 Value last_result; // default fallback
                 for (Expression* sub_exp : branch) {
-                    last_result = evaluate_expression(sub_exp);
-                    if (sub_exp->is_returnable()) {
-                        if_statement->set_returnable(true);
-                        break;
-                    }
+                    auto [sub_res, sub_retunable] = evaluate_expression(sub_exp);
+                    last_result = sub_res;
+                    if (sub_retunable) return {last_result, true};
                 }
-                return last_result;
+                return {last_result, false};
 
             }
         }
@@ -59,42 +128,50 @@ Value Evaluator::evaluate_expression(Expression * exp) {
 
             Value last_result;
             while (true) {
-                Value cond_val = evaluate_expression(while_statment->get_conditional());
+                Value cond_val = evaluate_expression(while_statment->get_conditional()).first;
                 if (!std::holds_alternative<bool>(cond_val.data)) { throw std::runtime_error("While loop condition does not evaluate to bool"); }
 
                 bool b = std::get<bool>(cond_val.data);
                 if (!b) break;
 
+                // for (Expression* sub_exp : while_statment->get_body_exps()) {
+                //     last_result = evaluate_expression(sub_exp);
+                //     if (sub_exp->is_returnable()) {
+                //         while_statment->set_returnable(true);
+                //         return last_result;
+                //     }
+                // }
+
+                Value last_result; // default fallback
                 for (Expression* sub_exp : while_statment->get_body_exps()) {
-                    last_result = evaluate_expression(sub_exp);
-                    if (sub_exp->is_returnable()) {
-                        while_statment->set_returnable(true);
-                        return last_result;
-                    }
+                    auto [sub_res, sub_retunable] = evaluate_expression(sub_exp);
+                    last_result = sub_res;
+                    if (sub_retunable) return {last_result, true};
                 }
             }
 
-            return last_result;
+            return {last_result, false};
         }
         case ExpressionType::FUNC_ASSIGN_EXP: { 
             FunctionAssignmentExpression * func_exp = dynamic_cast<FunctionAssignmentExpression*>(exp);
             func_env[func_exp->get_name()] = func_exp;
-            return Value();
+            return {Value(), false};
         }
         case ExpressionType::FUNC_CALL_EXP: {
             FunctionCallExpression * func_call_exp = dynamic_cast<FunctionCallExpression*>(exp);
             std::string func_name = func_call_exp->get_name();
+            // std::cout << "called " << func_name << " " << string_of_env() <<  " " << curr_env << "\n";
 
             std::vector<Value> evaluated_args;
             for (Expression* arg_exp : func_call_exp->get_arg_exps()) {
-                evaluated_args.push_back(evaluate_expression(arg_exp));
+                evaluated_args.push_back(evaluate_expression(arg_exp).first);
             }
 
-            if (is_builtin_func(func_name)) {
-                if (func_name == "append") return builtin::append(evaluated_args[0], evaluated_args[1]);
-                if (func_name == "remove") return builtin::remove(evaluated_args[0], evaluated_args[1]);
-                if (func_name == "type") return builtin::type(evaluated_args[0]);
-                if (func_name == "string") return builtin::string(evaluated_args[0]);
+            if (builtin::is_builtin_func(func_name)) {
+                if (func_name == "append") return {builtin::append(evaluated_args[0], evaluated_args[1]), returnable};
+                if (func_name == "remove") return {builtin::remove(evaluated_args[0], evaluated_args[1]), returnable};
+                if (func_name == "type") return {builtin::type(evaluated_args[0]), returnable};
+                if (func_name == "string") return {builtin::string(evaluated_args[0]), returnable};
                 throw std::runtime_error("unknown builtin");
             } else if (func_env.find(func_name) == func_env.end()) {
                 throw std::runtime_error("function does not exist");
@@ -109,7 +186,9 @@ Value Evaluator::evaluate_expression(Expression * exp) {
             // execute the function by adding to env, and then removing
             size_t arg_count = func_call_exp->get_args_length();
             std::vector<std::string> arg_names = func_exp->get_arg_names();
-            Value return_val = Value();
+
+            push_env();
+            Environment& env = *curr_env;
 
             // add to environment
             for (size_t i = 0; i < arg_count; i++) {
@@ -118,34 +197,34 @@ Value Evaluator::evaluate_expression(Expression * exp) {
                 env[arg_name] = arg_val;
             }
 
+            // std::cout << "added new env " << string_of_env() << "\n";
+            Value return_val = Value();
             for (Expression* inner_exp : func_exp->get_body_exps()) {
-                return_val = evaluate_expression(inner_exp);
-                if (inner_exp->is_returnable()) break;
+                // std::cout << utils::string_of_expression(inner_exp) << std::endl;
+                auto [inner_val, inner_returnable] = evaluate_expression(inner_exp);
+                return_val = inner_val;
+                if (inner_returnable) break;
             }
 
-            // remove from env
-            for (size_t i = 0; i < arg_count; i++) {
-                std::string arg_name = arg_names[i];
-                env.erase(arg_name);
-            }
+            pop_env();
 
-            return return_val;
+            return {return_val, returnable};
         }
         case ExpressionType::LIST_EXP: {
             ListExpression * list_statement = dynamic_cast<ListExpression*>(exp);
             std::vector<Value> elements;
 
             for (Expression * elem_exp : list_statement->get_elements()) {
-                Value res = evaluate_expression(elem_exp);
+                Value res = evaluate_expression(elem_exp).first;
                 elements.push_back(res);
             }
 
-            return Value(elements);
+            return {Value(elements), returnable};
         }
         case ExpressionType::LIST_ACCESS_EXP: {
             ListAccessExpression * access_exp = dynamic_cast<ListAccessExpression*>(exp);
-            Value va1 = evaluate_expression(access_exp->get_arr_exp());
-            Value va2 = evaluate_expression(access_exp->get_idx_exp());
+            Value va1 = evaluate_expression(access_exp->get_arr_exp()).first;
+            Value va2 = evaluate_expression(access_exp->get_idx_exp()).first;
 
             if (std::holds_alternative<std::vector<Value>>(va1.data) && std::holds_alternative<int>(va2.data)) {
                 std::vector<Value> arr = std::get<std::vector<Value>>(va1.data);
@@ -155,7 +234,7 @@ Value Evaluator::evaluate_expression(Expression * exp) {
                     throw std::runtime_error("Index out of bounds");
                 }
 
-                return Value(arr[idx]);
+                return {Value(arr[idx]), returnable};
 
             } else if (std::holds_alternative<std::string>(va1.data) && std::holds_alternative<int>(va2.data)) {
                 std::string str = std::get<std::string>(va1.data);
@@ -166,14 +245,14 @@ Value Evaluator::evaluate_expression(Expression * exp) {
                 }
 
                 std::string return_char = std::string(1, str[idx]);
-                return Value(return_char);
+                return {Value(return_char), returnable};
             }
         }
         case ExpressionType::LIST_MODIFY_EXP: {
             ListModifyExpression * access_exp = dynamic_cast<ListModifyExpression*>(exp);
-            Value va_list = evaluate_expression(access_exp->get_ident_exp());
-            Value va1 = evaluate_expression(access_exp->get_idx_exp());
-            Value va2 = evaluate_expression(access_exp->get_exp());
+            Value va_list = evaluate_expression(access_exp->get_ident_exp()).first;
+            Value va1 = evaluate_expression(access_exp->get_idx_exp()).first;
+            Value va2 = evaluate_expression(access_exp->get_exp()).first;
             
             if (std::holds_alternative<std::vector<Value>>(va_list.data) && std::holds_alternative<int>(va1.data)) {
                 std::vector<Value>& arr = std::get<std::vector<Value>>(va_list.data);
@@ -184,53 +263,8 @@ Value Evaluator::evaluate_expression(Expression * exp) {
                 }
                 
                 arr[idx] = va2;
-                return Value(arr);
+                return {Value(arr), false};
             }
-        }
-        case ExpressionType::BIN_EXP: {
-            BinaryExpression * bin_exp = dynamic_cast<BinaryExpression*>(exp);
-            Value va1 = evaluate_expression(bin_exp->get_left());
-            Value va2 = evaluate_expression(bin_exp->get_right());
-
-            switch (bin_exp->get_type()) {
-                case BinaryOperator::IntPlusOp: return va1 + va2;
-                case BinaryOperator::IntMinusOp: return va1 - va2;
-                case BinaryOperator::IntTimesOp: return va1 * va2;
-                case BinaryOperator::IntDivOp: return va1 / va2;
-                case BinaryOperator::IntPowOp: return va1.pow(va2);
-                case BinaryOperator::ModOp: return va1 % va2;
-                case BinaryOperator::GtOp: return va1 > va2;
-                case BinaryOperator::GteOp: return va1 >= va2;
-                case BinaryOperator::LtOp: return va1 < va2;
-                case BinaryOperator::LteOp: return va1 <= va2;
-                case BinaryOperator::EqualityOp: return va1 == va2;
-                case BinaryOperator::NotEqualsOp: return va1 != va2;
-                case BinaryOperator::AndOp: return va1 && va2;
-                case BinaryOperator::OrOp: return va1 || va2;
-                default: throw std::runtime_error("Incorrect BinOp (int): " + std::to_string(int(bin_exp->get_type())));
-            };
-        }
-        case ExpressionType::MON_EXP: {
-            // std::cout << "mon" << std::endl;
-            MonadicExpression * mon_exp = dynamic_cast<MonadicExpression*>(exp);
-            Value val = evaluate_expression(mon_exp->get_right());
-
-            switch (mon_exp->get_type()) {
-                case MonadicOperator::IntNegOp: return -val;
-                case MonadicOperator::NotOp: return !val;
-                case MonadicOperator::PrintOp: std::cout << val.to_string() << "\n"; return Value();
-                case MonadicOperator::SizeOp: return val.size();
-                default: throw std::runtime_error("Incorrect MonOp (int): " + std::to_string(int(mon_exp->get_type())));
-            };
-        }
-        case ExpressionType::LET_EXP: {
-            // std::cout << "let" << std::endl;
-            AssignmentExpression * let_exp = dynamic_cast<AssignmentExpression*>(exp);
-            Value val = evaluate_expression(let_exp->get_right());
-            std::string var_name = let_exp->get_id();
-
-            env[var_name] = val;
-            return val;
         }
     };
 

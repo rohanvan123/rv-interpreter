@@ -1,4 +1,5 @@
 #include "interpreter.hpp"
+#include "builtins.hpp"
 
 #include <unistd.h>
 
@@ -93,13 +94,37 @@ void Interpreter::execute() {
                 break;
             }
             case JUMP: pc = a1; break;
-            case JUMPF: frame_return_addr = pc + 1; pc = _func_table[a1].start_addr; break;
+            case JUMPF: {
+                frame_return_addr = pc + 1; 
+                if (a1 < 0) { 
+                    handle_builtin_func(a1, a2, a3);
+                } else {
+                    pc = _func_table[a1].start_addr;
+                }
+                break;
+            }
             case JNT: pc = (register_file[a1].equals(TRUE_VAL)) ? pc + 1 : a2; break;
             case RET: pc = frame_return_addr; pop_stack_frame(); break;
             default: break;
         };
         // sleep(1);
     }
+}
+
+void Interpreter::handle_builtin_func(int a1, int a2, int a3) {
+    Environment& env = current_frame->env;
+    int& frame_return_addr = current_frame->return_addr;
+
+    std::string func_name = builtin::fid_to_builtin.at(a1);
+    Value res;
+    if (func_name == "append") res = builtin::append(env["arr_val"], env["ele_val"]);
+    if (func_name == "remove") res = builtin::remove(env["arr_val"], env["idx_val"]);
+    if (func_name == "type") res = builtin::type(env["val"]);
+    if (func_name == "string") res = builtin::string(env["val"]);
+
+    v0 = res;
+    pc = frame_return_addr; 
+    pop_stack_frame();
 }
 
 void Interpreter::print_reg_file() const {

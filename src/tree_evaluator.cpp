@@ -134,14 +134,6 @@ std::pair<Value, bool> TreeEvaluator::evaluate_expression(Expression * exp) {
                 bool b = std::get<bool>(cond_val.data);
                 if (!b) break;
 
-                // for (Expression* sub_exp : while_statment->get_body_exps()) {
-                //     last_result = evaluate_expression(sub_exp);
-                //     if (sub_exp->is_returnable()) {
-                //         while_statment->set_returnable(true);
-                //         return last_result;
-                //     }
-                // }
-
                 Value last_result; // default fallback
                 for (Expression* sub_exp : while_statment->get_body_exps()) {
                     auto [sub_res, sub_retunable] = evaluate_expression(sub_exp);

@@ -33,6 +33,8 @@ private:
     void push_stack_frame();
     void pop_stack_frame();
 
+    void handle_builtin_func(int a1, int a2, int a3);
+
 public:
     Interpreter(IRGenerator& gen);
     void execute();

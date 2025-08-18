@@ -73,19 +73,19 @@ std::vector<Expression*> Parser::parse_top_level_expressions() {
 }
 
 Expression* Parser::parse_expression(int &idx, bool parsing_condition) {
-    if (match(idx, LET)) {
+    if (match(idx, LET)) { // let ...
         return parse_let_expression(idx);
-    } else if (match(idx, IDENTIFIER) && match(idx + 1, EQUALS)) {
+    } else if (match(idx, IDENTIFIER) && match(idx + 1, EQUALS)) { // x = ... 
         return parse_reassign_expression(idx);
-    } else if (match(idx, IDENTIFIER) && match(idx + 1, LBRACKET)) {
+    } else if (match(idx, IDENTIFIER) && match(idx + 1, LBRACKET)) { // x[...] = 
         return parse_list_assign_expression(idx);
-    } else if (match(idx, IDENTIFIER) && match(idx + 1, assignment_op_tokens)) {
+    } else if (match(idx, IDENTIFIER) && match(idx + 1, assignment_op_tokens)) { // x += ...
         return parse_assign_op_expression(idx);
-    } else if (match(idx, IF)) {
+    } else if (match(idx, IF)) { // if ... 
         return parse_if_expression(idx);
-    } else if (match(idx, WHILE)) {
+    } else if (match(idx, WHILE)) { // while ... 
         return parse_while_expression(idx);
-    } else if (match(idx, FUNCTION)) {
+    } else if (match(idx, FUNCTION)) { // function ...
         return parse_function_expression(idx);
     } else {
         // for simple expressions, delegate directly to old parser

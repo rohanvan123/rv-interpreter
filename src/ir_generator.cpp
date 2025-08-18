@@ -1,4 +1,5 @@
 #include "ir_generator.hpp"
+#include "builtins.hpp"
 
 #include <format>
 #include <iostream>
@@ -245,8 +246,17 @@ int IRGenerator::gen_func_assign_exp_ir(FunctionInfo& func_info) {
 }
 
 int IRGenerator::gen_func_call_exp_ir(FunctionCallExpression* call_exp) {
-    int fid = ident_to_fid[call_exp->get_name()];
-    FunctionAssignmentExpression* func_exp = _func_table[fid].func_exp;
+    FunctionAssignmentExpression* func_exp;
+    int fid;
+
+    if (builtin::is_builtin_func(call_exp->get_name())) {
+        fid = builtin::builtin_to_fid.at(call_exp->get_name());
+        func_exp = builtin::builtin_func_exps[call_exp->get_name()];
+    } else {
+        fid = ident_to_fid[call_exp->get_name()];
+        func_exp = _func_table[fid].func_exp;
+    }
+    
 
     const std::vector<std::string> arg_names = func_exp->get_arg_names();
     const std::vector<Expression*> arg_exps = call_exp->get_arg_exps();
@@ -398,7 +408,11 @@ void IRGenerator::print_instruction(Instruction inst) const {
         case (NEG_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2; break;
         case (JNT): std::cout << "R" << inst.arg1 << " " << inst.arg2; break;
         case (JUMP): std::cout << inst.arg1; break;
-        case (JUMPF): std::cout << _func_table[inst.arg1].name; break;
+        case (JUMPF): {
+            std::string func_string = (inst.arg1 < 0) ? builtin::fid_to_builtin.at(inst.arg1) : _func_table[inst.arg1].name;
+            std::cout << func_string; 
+            break;
+        }
         case (MOVE_OP): std::cout << reg_string(inst.arg1) << " " << reg_string(inst.arg2); break;
         case (PUSH): std::cout << reg_string(inst.arg1); break;
         case (POP): std::cout << reg_string(inst.arg1); break;

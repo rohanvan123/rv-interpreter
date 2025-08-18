@@ -1,6 +1,6 @@
 #include "lexer.hpp"
 #include "parser.hpp"
-#include "evaluator.hpp"
+#include "tree_evaluator.hpp"
 #include "utils.hpp"
 #include "ir_generator.hpp"
 #include "interpreter.hpp"
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     
     if (flags["--tree-evaluate"]) {
         // use TreeEvaluator
-        Evaluator evaluator;
+        TreeEvaluator evaluator;
         evaluator.evaluate_commands(expressions);
     } else {
         // use RV VM

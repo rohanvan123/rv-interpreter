@@ -1,21 +1,21 @@
-#include "evaluator.hpp"
+#include "tree_evaluator.hpp"
 #include "utils.hpp"
 #include "builtins.hpp"
 
 #include <cmath>
 #include <sstream>
 
-void Evaluator::push_env() {
+void TreeEvaluator::push_env() {
     Environment env_copy = *curr_env; // make a copy of the topmost frame
     env_stack.push(env_copy);
     curr_env = &env_stack.top(); // set current frame to the top of the stack (this new frame)
 }
-void Evaluator::pop_env() {
+void TreeEvaluator::pop_env() {
     env_stack.pop();
     curr_env = &env_stack.top();
 }
 
-std::string Evaluator::string_of_env() {
+std::string TreeEvaluator::string_of_env() {
     std::ostringstream oss;
     oss << "{";
     bool first = true;
@@ -28,7 +28,7 @@ std::string Evaluator::string_of_env() {
     return oss.str();
 }
 
-std::pair<Value, bool> Evaluator::evaluate_expression(Expression * exp) {
+std::pair<Value, bool> TreeEvaluator::evaluate_expression(Expression * exp) {
     bool returnable = exp->is_returnable();
 
     switch (exp->get_signature()) {

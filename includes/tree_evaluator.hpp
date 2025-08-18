@@ -1,5 +1,5 @@
-#ifndef EVALUATOR_CPP
-#define EVALUATOR_CPP
+#ifndef TREE_EVALUATOR_CPP
+#define TREE_EVALUATOR_CPP
 
 #include "expression.hpp"
 #include "types.hpp"
@@ -7,7 +7,7 @@
 #include <vector>
 #include <stack>
 
-class Evaluator {
+class TreeEvaluator {
 private:
     // Environment env;
     FunctionEnvironment func_env;
@@ -22,7 +22,7 @@ private:
     std::pair<Value, bool>  evaluate_expression(Expression * exp);
 
 public:
-    Evaluator() { 
+    TreeEvaluator() { 
         env_stack.push({});
         curr_env = &env_stack.top();
     }
@@ -34,4 +34,4 @@ public:
     }
 };
 
-#endif // EVALUATOR_CPP
+#endif // TREE_EVALUATOR_CPP

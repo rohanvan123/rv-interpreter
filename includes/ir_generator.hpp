@@ -49,6 +49,9 @@ enum OPCode {
     LOAD_CONST_OP,
     LOAD_VAR_OP,
     STORE_VAR_OP,
+    INIT_LIST,
+    APPEND,
+    ACCESS,
     MOVE_OP,
     // Control Flow Ops
     JNT, // Jump if not true
@@ -94,6 +97,8 @@ private:
     int gen_while_exp_ir(WhileExpression* while_exp);
     int gen_func_assign_exp_ir(FunctionInfo& func_info);
     int gen_func_call_exp_ir(FunctionCallExpression* call_exp);
+    int gen_list_exp_ir(ListExpression* list_exp);
+    int gen_list_access_exp_ir(ListAccessExpression* access_exp);
     
     int store_func_assign_exp(FunctionAssignmentExpression* func_exp);
     int generate_ir_block(Expression* exp);

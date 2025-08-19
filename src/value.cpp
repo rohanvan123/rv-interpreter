@@ -224,6 +224,23 @@ Value Value::operator!() const {
     throw std::runtime_error("incorrect type for ! operator");    
 }
 
+Value Value::operator[](const Value& idx_val) const {
+    if (!idx_val.is_int()) throw std::runtime_error("index for [] is not an int");
+    int idx = std::get<int>(idx_val.data);
+
+    if (is_string()) {
+        std::string s = std::get<std::string>(data);
+        if (idx < 0 || idx >= s.size()) throw std::runtime_error("idx out of bounds for string[]");
+        return Value(std::string(1, s[idx]));
+    } else if (is_list()) {
+        std::vector<Value> arr = std::get<std::vector<Value>>(data);
+        if (idx < 0 || idx >= arr.size()) throw std::runtime_error("idx out of bounds for list[]");
+        return Value(arr[idx]);
+    }
+
+    throw std::runtime_error("incorrect type for [] operator");  
+}
+
 Value Value::size() const {
     if (is_string()) {
         std::string s = std::get<std::string>(data);
@@ -234,4 +251,14 @@ Value Value::size() const {
     }
 
     throw std::runtime_error("incorrect type for size operator"); 
+}
+
+void Value::append_ref(Value e) {
+    if (is_list()) {
+        std::vector<Value>& arr = std::get<std::vector<Value>>(data);
+        arr.push_back(e);
+        return;
+    }
+
+    throw std::runtime_error("cannot append to type -- " + get_type()); 
 }

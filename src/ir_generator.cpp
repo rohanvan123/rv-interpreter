@@ -1,5 +1,6 @@
 #include "ir_generator.hpp"
 #include "builtins.hpp"
+#include "utils.hpp"
 
 #include <format>
 #include <iostream>
@@ -64,6 +65,14 @@ int IRGenerator::generate_ir_block(Expression* exp) {
             FunctionCallExpression* func_exp = dynamic_cast<FunctionCallExpression*>(exp);
             return gen_func_call_exp_ir(func_exp);
         }
+        case ExpressionType::LIST_EXP: {
+            ListExpression* list_exp = dynamic_cast<ListExpression*>(exp);
+            return gen_list_exp_ir(list_exp);
+        }
+        case ExpressionType::LIST_ACCESS_EXP: {
+            ListAccessExpression* access_exp = dynamic_cast<ListAccessExpression*>(exp);
+            return gen_list_access_exp_ir(access_exp);
+        }
         default: {
             return 0;
         }
@@ -100,7 +109,7 @@ int IRGenerator::gen_var_exp_ir(VarExp* var_exp) {
     _instr.push_back({RTYPE, LOAD_VAR_OP, curr_reg, ident_to_idx[var_name], -1}); // curr_reg <- VAR
 
     if (var_exp->is_returnable()) {
-        _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg -1});
+        _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg, -1});
         _instr.push_back({JTYPE, RET, -1, -1, -1});
     }
     
@@ -115,7 +124,7 @@ int IRGenerator::gen_let_exp_ir(AssignmentExpression* let_exp) {
     int ident_idx;
     if (!let_exp->is_reassign()) {
         // does not exist in our map, so add it
-        ident_idx = ident_to_idx.size();
+        ident_idx = _ident_table.size();
         _ident_table.push_back(var_name);
         ident_to_idx[var_name] = ident_idx;
     } else {
@@ -162,7 +171,7 @@ int IRGenerator::gen_mon_exp_ir(MonadicExpression* mon_exp) {
                 _instr.push_back({JTYPE, RET, -1, -1, -1});
             }
 
-            return curr_reg;
+            return curr_reg++;
         }
     };
 }
@@ -223,6 +232,7 @@ int IRGenerator::gen_while_exp_ir(WhileExpression* while_exp) {
 }
 
 int IRGenerator::store_func_assign_exp(FunctionAssignmentExpression* func_exp) {
+    // this just creates and stores meta data, the actual function will be declared at the end
     int fid = _func_table.size();
     ident_to_fid[func_exp->get_name()] = fid;
     _func_table.push_back({func_exp->get_name(), -1, func_exp}); // function addr is resolved at the end
@@ -231,7 +241,7 @@ int IRGenerator::store_func_assign_exp(FunctionAssignmentExpression* func_exp) {
 }
 
 int IRGenerator::gen_func_assign_exp_ir(FunctionInfo& func_info) {
-    // this just creates and stores meta data, the actual function will be declared at the end
+    
     FunctionAssignmentExpression* func_exp = func_info.func_exp;
     func_info.start_addr = _instr.size();
     addr_to_ident[func_info.start_addr] = func_info.name;
@@ -268,9 +278,11 @@ int IRGenerator::gen_func_call_exp_ir(FunctionCallExpression* call_exp) {
         Expression* arg_expi = arg_exps[i];
         int t1 = generate_ir_block(arg_expi);
 
-        int ident_idx = ident_to_idx.size();
+        int ident_idx = _ident_table.size();
         _ident_table.push_back(argi);
         ident_to_idx[argi] = ident_idx;
+        // std::cout << argi << " " << utils::string_of_expression(arg_expi) << "\n";
+        // print_instruction({RTYPE, STORE_VAR_OP, ident_idx, t1, -1});
         _instr.push_back({RTYPE, STORE_VAR_OP, ident_idx, t1, -1}); // Var name -> curr_reg
     }
 
@@ -279,6 +291,37 @@ int IRGenerator::gen_func_call_exp_ir(FunctionCallExpression* call_exp) {
 
     return curr_reg++;
     
+}
+
+int IRGenerator::gen_list_exp_ir(ListExpression* list_exp) {
+    // std::cout << "called list" << std::endl;
+    int list_reg = curr_reg++;
+    _instr.push_back({ITYPE, INIT_LIST, list_reg, -1, -1}); // curr_reg -> []
+
+    for (Expression* exp : list_exp->get_elements()) {
+        int ti = generate_ir_block(exp);
+        _instr.push_back({RTYPE, APPEND, list_reg, ti, -1});  // => list.append(ti)
+    }
+
+    if (list_exp->is_returnable()) {
+        _instr.push_back({RTYPE, MOVE_OP, -2, list_reg, -1});
+        _instr.push_back({JTYPE, RET, -1, -1, -1});
+    } 
+
+    return list_reg;
+}
+
+int IRGenerator::gen_list_access_exp_ir(ListAccessExpression* access_exp) {
+    int t1 = generate_ir_block(access_exp->get_arr_exp());
+    int t2 = generate_ir_block(access_exp->get_idx_exp());
+    _instr.push_back({RTYPE, ACCESS, curr_reg, t1, t2}); // curr = t1[t2]
+
+    if (access_exp->is_returnable()) {
+        _instr.push_back({RTYPE, MOVE_OP, -2, curr_reg, -1});
+        _instr.push_back({JTYPE, RET, -1, -1, -1});
+    }
+
+    return curr_reg++;
 }
 
 // Helpers
@@ -330,6 +373,9 @@ std::string to_string(OPCode op) {
         case LOAD_CONST_OP: return "LOAD_CONST";
         case LOAD_VAR_OP: return "LOAD_VAR";
         case STORE_VAR_OP: return "STORE_VAR";
+        case INIT_LIST: return "INIT_LIST";
+        case APPEND: return "APPEND";
+        case ACCESS: return "ACCESS";
 
         case PRINT_OP: return "PRINT";
         case SIZE_OP: return "SIZE";
@@ -399,9 +445,18 @@ void IRGenerator::print_instruction(Instruction inst) const {
         case (AND_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2 << " R" << inst.arg3; break;
         case (OR_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2 << " R" << inst.arg3; break;
 
-        case (STORE_VAR_OP): std::cout << _ident_table[inst.arg1] << " R" << inst.arg2; break;
+        case (STORE_VAR_OP): {
+            // std::cout << "DEBUG " << inst.arg1 << " " << _ident_table[inst.arg1] << "\n";
+            std::cout << _ident_table[inst.arg1] << " R" << inst.arg2; break;
+        }
         case (LOAD_CONST_OP): std::cout << "R" << inst.arg1 << " " << _const_table[inst.arg2].to_string(); break;
-        case (LOAD_VAR_OP): std::cout << "R" << inst.arg1 << " " << _ident_table[inst.arg2]; break;
+        case (LOAD_VAR_OP): {
+            // std::cout << "DEBUG " << inst.arg2 << " " << _ident_table[inst.arg2] << "\n";
+            std::cout << "R" << inst.arg1 << " " << _ident_table[inst.arg2]; break;
+        }
+        case (INIT_LIST): std::cout << "R" << inst.arg1; break;
+        case (APPEND): std::cout << "R" << inst.arg1 << " " << "R" << inst.arg2; break;
+        case (ACCESS): std::cout << "R" << inst.arg1 << " R" << inst.arg2 << " R" << inst.arg3; break;
         
         case (PRINT_OP): std::cout << "R" << inst.arg1; break;
         case (SIZE_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2; break;

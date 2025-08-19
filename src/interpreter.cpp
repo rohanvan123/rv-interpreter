@@ -78,10 +78,19 @@ void Interpreter::execute() {
             case PRINT_OP: std::cout << register_file[a1].to_string() << std::endl; pc += 1; break;
             case NEG_OP: register_file[a1] = -register_file[a2]; pc += 1; break;
             case NOT_OP: register_file[a1] = !register_file[a2]; pc += 1; break;
+            case SIZE_OP: register_file[a1] = register_file[a2].size(); pc += 1; break;
 
             case LOAD_CONST_OP: register_file[a1] = _const_table[a2]; pc += 1; break;
             case STORE_VAR_OP: env[_ident_table[a1]] = register_file[a2]; pc += 1; break;
             case LOAD_VAR_OP: register_file[a1] = env[_ident_table[a2]]; pc += 1; break;
+            case INIT_LIST: register_file[a1] = Value(std::vector<Value>()); pc += 1; break;
+            case APPEND: register_file[a1].append_ref(register_file[a2]); pc += 1; break;
+            case ACCESS: {
+                Value list = register_file[a2]; 
+                register_file[a1] = list[register_file[a3]]; 
+                pc += 1; 
+                break;
+            }
 
             case PUSH: push_stack_frame(); pc += 1; break; // push a copy of env onto the stack
             case MOVE_OP: {
@@ -116,6 +125,7 @@ void Interpreter::handle_builtin_func(int a1, int a2, int a3) {
     int& frame_return_addr = current_frame->return_addr;
 
     std::string func_name = builtin::fid_to_builtin.at(a1);
+    // std::cout << func_name << " " << env["ele_val"].to_string() << "\n";
     Value res;
     if (func_name == "append") res = builtin::append(env["arr_val"], env["ele_val"]);
     if (func_name == "remove") res = builtin::remove(env["arr_val"], env["idx_val"]);

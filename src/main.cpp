@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
         IRGenerator gen;
         std::vector<Instruction> instr = gen.generate_ir_code(expressions);
         gen.print_instructions();
+        // gen.print_ident_table();
         std::cout << DELIMITER << "\n";
 
         Interpreter interpreter(gen);

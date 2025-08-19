@@ -29,6 +29,7 @@ public:
     std::string get_type() const;
     bool equals(const Value& rhs) const; // wrapper functions
     bool not_equals(const Value& rhs) const;
+    void append_ref(Value e);
 
     // overloaded ops
     Value operator+(const Value& rhs) const;
@@ -48,6 +49,9 @@ public:
 
     Value operator-() const;
     Value operator!() const;
+
+    Value operator[](const Value& idx_val) const;
+
     Value size() const;
 };
 

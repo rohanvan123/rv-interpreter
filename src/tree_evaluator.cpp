@@ -215,30 +215,10 @@ std::pair<Value, bool> TreeEvaluator::evaluate_expression(Expression * exp) {
         }
         case ExpressionType::LIST_ACCESS_EXP: {
             ListAccessExpression * access_exp = dynamic_cast<ListAccessExpression*>(exp);
-            Value va1 = evaluate_expression(access_exp->get_arr_exp()).first;
-            Value va2 = evaluate_expression(access_exp->get_idx_exp()).first;
+            Value arr = evaluate_expression(access_exp->get_arr_exp()).first;
+            Value idx = evaluate_expression(access_exp->get_idx_exp()).first;
 
-            if (std::holds_alternative<std::vector<Value>>(va1.data) && std::holds_alternative<int>(va2.data)) {
-                std::vector<Value> arr = std::get<std::vector<Value>>(va1.data);
-                int idx = std::get<int>(va2.data);
-
-                if (idx < 0 || static_cast<size_t>(idx) >= arr.size()) {
-                    throw std::runtime_error("Index out of bounds");
-                }
-
-                return {Value(arr[idx]), returnable};
-
-            } else if (std::holds_alternative<std::string>(va1.data) && std::holds_alternative<int>(va2.data)) {
-                std::string str = std::get<std::string>(va1.data);
-                int idx = std::get<int>(va2.data);
-
-                if (idx < 0 || static_cast<size_t>(idx) >= str.size()) {
-                    throw std::runtime_error("Index out of bounds");
-                }
-
-                std::string return_char = std::string(1, str[idx]);
-                return {Value(return_char), returnable};
-            }
+            return {arr[idx], returnable};
         }
         case ExpressionType::LIST_MODIFY_EXP: {
             ListModifyExpression * access_exp = dynamic_cast<ListModifyExpression*>(exp);

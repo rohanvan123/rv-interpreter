@@ -1,6 +1,7 @@
 #include "builtins.hpp"
 
 Value builtin::append(Value v, Value x) {
+    // std::cout << v.to_string() << " " << x.to_string() << "\n";
     if (v.is_list()) {
         std::vector<Value> arr = std::get<std::vector<Value>>(v.data);
         arr.push_back(x);
@@ -10,6 +11,7 @@ Value builtin::append(Value v, Value x) {
 }
 
 Value builtin::remove(Value v, Value x) {
+    // std::cout << "Remove " << v.to_string() << " " << x.to_string() << "\n";
     if (v.is_list()) {
         std::vector<Value> vec = std::get<std::vector<Value>>(v.data);
         int idx = std::get<int>(x.data);

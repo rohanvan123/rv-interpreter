@@ -91,7 +91,7 @@ std::string utils::string_of_expression(Expression* exp) {
             // std::cout << "var" << std::endl;
             // std::cout << "its variable" << std::endl;
             VarExp * var_exp = dynamic_cast<VarExp*>(exp);
-            res = "VarExp(" + var_exp->get_var_name() + ")";
+            res += "VarExp(" + var_exp->get_var_name() + ")";
             break;
         }
         case ExpressionType::IF_EXP: {

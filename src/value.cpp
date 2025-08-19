@@ -241,6 +241,29 @@ Value Value::operator[](const Value& idx_val) const {
     throw std::runtime_error("incorrect type for [] operator");  
 }
 
+Value Value::modify_arr(const Value& idx_val, Value replace_val) {
+    if (!idx_val.is_int()) throw std::runtime_error("index for arr[] = ... is not an int");
+    int idx = std::get<int>(idx_val.data);
+
+    if (is_string() && replace_val.is_string()) {
+        std::string s(std::get<std::string>(data));
+        std::string c = (std::get<std::string>(replace_val.data));
+        if (idx < 0 || idx >= s.size()) throw std::runtime_error("idx out of bounds for string[]");
+        if (c.size() != 1) throw std::runtime_error("value for string[i] = x is not a single char");
+
+        s[idx] = c[0];
+        return Value(s);
+    } else if (is_list()) {
+        std::vector<Value> arr(std::get<std::vector<Value>>(data));
+        if (idx < 0 || idx >= arr.size()) throw std::runtime_error("idx out of bounds for list[]");
+
+        arr[idx] = replace_val;
+        return Value(arr);
+    }
+
+    throw std::runtime_error("incorrect type for [] = ... operator"); 
+}
+
 Value Value::size() const {
     if (is_string()) {
         std::string s = std::get<std::string>(data);

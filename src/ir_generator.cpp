@@ -5,6 +5,10 @@
 #include <format>
 #include <iostream>
 
+// const int PC_REG = -1; // PC id
+// const int V0_REG = -2; // return reg id 
+const int T0_REG = -3; // Temp0 reg id 
+
 std::vector<Instruction>& IRGenerator::generate_ir_code(const std::vector<Expression*>& _exps) {
     for (auto exp : _exps) {
         generate_ir_block(exp);
@@ -72,6 +76,10 @@ int IRGenerator::generate_ir_block(Expression* exp) {
         case ExpressionType::LIST_ACCESS_EXP: {
             ListAccessExpression* access_exp = dynamic_cast<ListAccessExpression*>(exp);
             return gen_list_access_exp_ir(access_exp);
+        }
+        case ExpressionType::LIST_MODIFY_EXP: {
+            ListModifyExpression* modify_exp = dynamic_cast<ListModifyExpression*>(exp);
+            return gen_list_modify_exp_ir(modify_exp);
         }
         default: {
             return 0;
@@ -324,6 +332,17 @@ int IRGenerator::gen_list_access_exp_ir(ListAccessExpression* access_exp) {
     return curr_reg++;
 }
 
+int IRGenerator::gen_list_modify_exp_ir(ListModifyExpression* modify_exp) {
+    int t1 = generate_ir_block(modify_exp->get_ident_exp());
+    int t2 = generate_ir_block(modify_exp->get_idx_exp());
+    int t3 = generate_ir_block(modify_exp->get_exp());
+
+    _instr.push_back({RTYPE, MODIFY, t1, t2, t3}); // T0 = modify(x, 3, ele)
+    _instr.push_back({RTYPE, MOVE_OP, curr_reg, T0_REG});
+
+    return curr_reg++;
+}
+
 // Helpers
 
 OPCode IRGenerator::map_binexp_to_opcode(BinaryOperator op) const {
@@ -376,6 +395,7 @@ std::string to_string(OPCode op) {
         case INIT_LIST: return "INIT_LIST";
         case APPEND: return "APPEND";
         case ACCESS: return "ACCESS";
+        case MODIFY: return "MODIFY";
 
         case PRINT_OP: return "PRINT";
         case SIZE_OP: return "SIZE";
@@ -421,6 +441,7 @@ std::string reg_string(int reg) {
         // General Purpose Registers
         case -1: return "PC"; // program counter
         case -2: return "V0"; // return reg
+        case -3: return "T0";
         default: return "R" + std::to_string(reg);
     };
 }

@@ -52,6 +52,7 @@ enum OPCode {
     INIT_LIST,
     APPEND,
     ACCESS,
+    MODIFY,
     MOVE_OP,
     // Control Flow Ops
     JNT, // Jump if not true
@@ -99,6 +100,7 @@ private:
     int gen_func_call_exp_ir(FunctionCallExpression* call_exp);
     int gen_list_exp_ir(ListExpression* list_exp);
     int gen_list_access_exp_ir(ListAccessExpression* access_exp);
+    int gen_list_modify_exp_ir(ListModifyExpression* modify_exp);
     
     int store_func_assign_exp(FunctionAssignmentExpression* func_exp);
     int generate_ir_block(Expression* exp);

@@ -27,6 +27,7 @@ private:
 
     int pc = 0;
     Value v0 = Value();
+    Value t0 = Value();
 
     RvStackFrame* current_frame;
     std::stack<RvStackFrame> program_stack;

@@ -1,5 +1,4 @@
 let x = [1, 2, 3];
 x = ["wow", 2, 3, x];
-print(x[2]);
-print(x[3][2]);
-print(x[0][2]);
+x[3][2] = 45;
+print(x);

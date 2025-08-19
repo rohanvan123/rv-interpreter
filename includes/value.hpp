@@ -51,6 +51,7 @@ public:
     Value operator!() const;
 
     Value operator[](const Value& idx_val) const;
+    Value modify_arr(const Value& idx_val, Value replace_val);
 
     Value size() const;
 };

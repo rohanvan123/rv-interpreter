@@ -3,7 +3,9 @@
 
 #include <unistd.h>
 
-const int V0_REG = -2;
+// const int PC_REG = -1; // PC id
+const int V0_REG = -2; // return reg id 
+const int T0_REG = -3; // Temp0 reg id 
 
 const Value TRUE_VAL = Value(true);
 
@@ -91,6 +93,12 @@ void Interpreter::execute() {
                 pc += 1; 
                 break;
             }
+            case MODIFY: {
+                Value list = register_file[a1];
+                t0 = list.modify_arr(register_file[a2], register_file[a3]);
+                pc += 1;
+                break;
+            }
 
             case PUSH: push_stack_frame(); pc += 1; break; // push a copy of env onto the stack
             case MOVE_OP: {
@@ -98,6 +106,10 @@ void Interpreter::execute() {
                     v0 = register_file[a2];
                 } else if (a2 == V0_REG) {
                     register_file[a1] = v0;
+                } else if (a1 == T0_REG) {
+                    t0 = register_file[a2];
+                } else if (a2 == T0_REG) {
+                    register_file[a1] = t0;
                 }
                 pc += 1; 
                 break;

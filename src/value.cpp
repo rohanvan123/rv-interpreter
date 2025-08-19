@@ -1,13 +1,13 @@
 #include "value.hpp"
 #include "utils.hpp"
 
-std::string Value::string_of_list(std::vector<Value> arr) const {
+std::string Value::string_of_list(std::vector<Value> arr, bool string_quotes) const {
     std::ostringstream oss;
     oss << "[";
     bool first = true;
     for (Value v : arr) {
         if (!first) oss << ", ";
-        oss << v.to_string();
+        oss << v.to_string(string_quotes);
         first = false;
     }
     oss << "]";
@@ -15,7 +15,7 @@ std::string Value::string_of_list(std::vector<Value> arr) const {
 }
 
 
-std::string Value::to_string() const {
+std::string Value::to_string(bool string_quotes) const {
     if (std::holds_alternative<int>(data)) {
         int i = std::get<int>(data);
         return std::to_string(i);
@@ -24,10 +24,10 @@ std::string Value::to_string() const {
         return b ? "true" : "false";
     } else if (std::holds_alternative<std::string>(data)) {
         std::string s = std::get<std::string>(data);
-        return s;
+        return string_quotes ? "\"" + s + "\"" : s;
     } else if ((std::holds_alternative<std::vector<Value>>(data))) {
-        std::vector<Value> s = std::get<std::vector<Value>>(data);
-        return string_of_list(s);
+        std::vector<Value> v = std::get<std::vector<Value>>(data);
+        return string_of_list(v, string_quotes);
 
     }
 

@@ -24,8 +24,8 @@ public:
     bool is_string() const { return std::holds_alternative<std::string>(data); }
     bool is_list() const { return std::holds_alternative<std::vector<Value>>(data); }
     
-    std::string to_string() const;
-    std::string string_of_list(std::vector<Value> arr) const;
+    std::string to_string(bool string_quotes) const;
+    std::string string_of_list(std::vector<Value> arr, bool string_quotes) const;
     std::string get_type() const;
     bool equals(const Value& rhs) const; // wrapper functions
     bool not_equals(const Value& rhs) const;

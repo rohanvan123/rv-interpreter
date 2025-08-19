@@ -77,7 +77,7 @@ void Interpreter::execute() {
             case AND_OP: register_file[a1] = register_file[a2] && register_file[a3]; pc += 1; break;
             case OR_OP: register_file[a1] = register_file[a2] || register_file[a3]; pc += 1; break;
 
-            case PRINT_OP: std::cout << register_file[a1].to_string() << std::endl; pc += 1; break;
+            case PRINT_OP: std::cout << register_file[a1].to_string(false) << std::endl; pc += 1; break;
             case NEG_OP: register_file[a1] = -register_file[a2]; pc += 1; break;
             case NOT_OP: register_file[a1] = !register_file[a2]; pc += 1; break;
             case SIZE_OP: register_file[a1] = register_file[a2].size(); pc += 1; break;
@@ -151,13 +151,13 @@ void Interpreter::handle_builtin_func(int a1, int a2, int a3) {
 
 void Interpreter::print_reg_file() const {
     for (const auto& pair : current_frame->register_file) {
-        std::cout << "R" << pair.first << ": " << pair.second.to_string() << "\n";
+        std::cout << "R" << pair.first << ": " << pair.second.to_string(true) << "\n";
     }
-    std::cout << "v0: " << v0.to_string() << "\n";
+    std::cout << "v0: " << v0.to_string(true) << "\n";
 }
 
 void Interpreter::print_env() const {
     for (const auto& pair : current_frame->env) {
-        std::cout << pair.first << ": " << pair.second.to_string() << "\n";
+        std::cout << pair.first << ": " << pair.second.to_string(true) << "\n";
     }
 }

@@ -21,7 +21,7 @@ std::string TreeEvaluator::string_of_env() {
     bool first = true;
     for (const auto& pair : *curr_env) {
         if (!first) oss << ", ";
-        oss << pair.first << ": " << pair.second.to_string();
+        oss << pair.first << ": " << pair.second.to_string(false);
         first = false;
     }
     oss << "}";
@@ -89,7 +89,7 @@ std::pair<Value, bool> TreeEvaluator::evaluate_expression(Expression * exp) {
             switch (mon_exp->get_type()) {
                 case MonadicOperator::IntNegOp: return {-val, returnable};
                 case MonadicOperator::NotOp: return {!val, returnable};
-                case MonadicOperator::PrintOp: std::cout << val.to_string() << "\n"; return {Value(), false}; // cannot return print statement
+                case MonadicOperator::PrintOp: std::cout << val.to_string(false) << "\n"; return {Value(), false}; // cannot return print statement
                 case MonadicOperator::SizeOp: return {val.size(), returnable};
                 default: throw std::runtime_error("Incorrect MonOp (int): " + std::to_string(int(mon_exp->get_type())));
             };

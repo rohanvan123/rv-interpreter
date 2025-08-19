@@ -15,7 +15,7 @@ std::unordered_map<std::string, bool> flags = {
     {"--output-lexer", false},
     {"--output-parser", false},
     {"--tree-evaluate", false},
-    {"--output-ir", true},
+    {"--output-ir", false},
 };
 
 void print_lexer_output(const std::vector<Token>& tokens) {
@@ -72,14 +72,14 @@ int main(int argc, char *argv[]) {
         // use RV VM
         IRGenerator gen;
         std::vector<Instruction> instr = gen.generate_ir_code(expressions);
-        // gen.print_instructions();
-        // gen.print_ident_table();
-        // std::cout << DELIMITER << "\n";
+        
+        if (flags["--output-ir"]) {
+            gen.print_instructions();
+            std::cout << DELIMITER << "\n";
+        }
 
         Interpreter interpreter(gen);
         interpreter.execute();
-        // interpreter.print_reg_file();
-        // interpreter.print_env();
     }
     
     utils::cleanup_expressions(expressions);

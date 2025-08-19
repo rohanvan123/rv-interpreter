@@ -470,7 +470,7 @@ void IRGenerator::print_instruction(Instruction inst) const {
             // std::cout << "DEBUG " << inst.arg1 << " " << _ident_table[inst.arg1] << "\n";
             std::cout << _ident_table[inst.arg1] << " R" << inst.arg2; break;
         }
-        case (LOAD_CONST_OP): std::cout << "R" << inst.arg1 << " " << _const_table[inst.arg2].to_string(); break;
+        case (LOAD_CONST_OP): std::cout << "R" << inst.arg1 << " " << _const_table[inst.arg2].to_string(true); break;
         case (LOAD_VAR_OP): {
             // std::cout << "DEBUG " << inst.arg2 << " " << _ident_table[inst.arg2] << "\n";
             std::cout << "R" << inst.arg1 << " " << _ident_table[inst.arg2]; break;

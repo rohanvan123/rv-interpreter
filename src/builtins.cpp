@@ -28,7 +28,7 @@ Value builtin::type(Value v) {
 
 Value builtin::string(Value v) {
     if (v.is_list()) return Value("list");
-    return Value(v.to_string());
+    return Value(v.to_string(false));
 }
 
 bool builtin::is_builtin_func(const std::string& func_name) {

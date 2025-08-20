@@ -148,7 +148,7 @@ Expression * ArithmeticParser::exponent() {
 
 Expression * ArithmeticParser::unary() {
     // std::cout << "unary - " << current << std::endl;
-    if (match(3, PRINT, MINUS, SIZE)) {
+    if (match(4, PRINT, MINUS, SIZE, NOT)) {
         Token op = previous();
         Expression * right = unary();
 
@@ -156,6 +156,7 @@ Expression * ArithmeticParser::unary() {
             case PRINT: return new MonadicExpression(MonadicOperator::PrintOp, right);
             case MINUS: return new MonadicExpression(MonadicOperator::IntNegOp, right);
             case SIZE: return new MonadicExpression(MonadicOperator::SizeOp, right);
+            case NOT: return new MonadicExpression(MonadicOperator::NotOp, right);
             default: return nullptr;
         };
     }

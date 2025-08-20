@@ -23,6 +23,7 @@ enum TokenType {
     LT,
     COMMA,
     END_BLOCK,
+    NOT,
 
     // Two Characters
     NEQ,
@@ -97,6 +98,7 @@ class Token {
                 case END_BLOCK: return "END_BLOCK";
                 case LBRACKET: return "LBRACKET";
                 case RBRACKET: return "RBRACKET";
+                case NOT: return "NOT";
 
                 case NEQ: return "NEQ";
                 case LEQ: return "LEQ";

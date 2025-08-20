@@ -1,4 +1,3 @@
-let x = [1, 2, 3];
-x = ["wow", 2, 3, x];
-x[3][2] = 45;
-print(x);
+let x = -45;
+print(-x % -5);
+print(-(x + 2));

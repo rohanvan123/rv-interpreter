@@ -14,7 +14,8 @@ const std::map<char, TokenType> Lexer::single_chars = {
     {',', COMMA},
     {'$', END_BLOCK},
     {'[', LBRACKET},
-    {']', RBRACKET}
+    {']', RBRACKET},
+    {'-', MINUS},
 };
 
 const std::map<std::string, TokenType> Lexer::keyword_tokens = {
@@ -23,7 +24,6 @@ const std::map<std::string, TokenType> Lexer::keyword_tokens = {
     {"=", EQUALS},
     {"+", PLUS},
     {"*", TIMES},
-    {"-", MINUS},
     {"/", DIVIDES},
     {"%", MOD},
     {"let", LET},

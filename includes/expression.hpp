@@ -2,22 +2,11 @@
 #define EXPRESSION_HPP
 
 #include "types.hpp"
+#include "value.hpp"
 
 #include <string> 
-#include <variant>
 #include <iostream>
 #include <vector>
-
-class Value;
-
-using ValueData = std::variant<int, bool, std::string, std::vector<Value>>;
-
-class Value {
-    public:
-        ValueData data;
-        Value() = default;
-        Value(ValueData vd): data(vd) {}
-};
 
 enum class ExpressionType {
     CONST_EXP,

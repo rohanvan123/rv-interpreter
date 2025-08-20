@@ -3,6 +3,7 @@ from flask import Flask, request
 from flask_cors import CORS
 import time
 import os
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -24,7 +25,7 @@ def write_program_to_file(program, filename):
 
 def interpret_program(program_file):
     # compile_res = subprocess.run("g++ -std=c++20 src/main.cpp -o bin/main -w", shell=True, text=True, capture_output=True)
-    exe_res = subprocess.run(f"./bin/main {program_file} --output-lexer --output-parser", shell=True, text=True, capture_output=True)
+    exe_res = subprocess.run(f"./bin/main {program_file} --output-lexer --output-parser --output-ir", shell=True, text=True, capture_output=True)
     return exe_res
 
 def parse_program_output(raw_ouput):
@@ -38,12 +39,20 @@ def parse_program_output(raw_ouput):
     parser_output = outputs[1]
     ast_sequence = parser_output.split('\n')[1:-1]
 
-    evaluator_output = outputs[2]
+    ir_output = outputs[2]
+    ir_code = ir_output.split('\n')[1:-1]
+    # ir_code_splits = [instr.split() for instr in ir_code]
+    pattern = r'"[^"]*"|\S+'  # match quoted strings OR non-whitespace
+    ir_code_splits = [re.findall(pattern, instr) for instr in ir_code]
+    # print(ir_code_splits)
+
+    evaluator_output = outputs[3]
     progam_output = evaluator_output.split('\n')[1:-1]
 
     body = {
         "tokens": tokens_per_line,
         "ast_sequence": ast_sequence,
+        "ir_code": ir_code_splits,
         "progam_output": progam_output
     }
     return body

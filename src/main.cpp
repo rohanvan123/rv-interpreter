@@ -1,25 +1,35 @@
-#include <string>
-#include <fstream>
-#include <vector>
-#include <stack>
-
 #include "lexer.hpp"
 #include "parser.hpp"
-#include "evaluator.hpp"
+#include "tree_evaluator.hpp"
 #include "utils.hpp"
+#include "ir_generator.hpp"
+#include "interpreter.hpp"
+
+#include <string>
+#include <vector>
+#include <unordered_map>
 
 const std::string DELIMITER = "=================================";
 
+std::unordered_map<std::string, bool> flags = {
+    {"--output-lexer", false},
+    {"--output-parser", false},
+    {"--tree-evaluate", false},
+    {"--output-ir", false},
+};
+
 void print_lexer_output(const std::vector<Token>& tokens) {
     utils::print_tokens_by_line(tokens);
+    std::cout << DELIMITER << "\n";
 }
 
 void print_parser_output(const std::vector<Expression*>& expressions) {
     for (size_t i = 0; i < expressions.size(); i++) {
         Expression* abstract_syntax_tree = expressions[i];
         std::string exp_str = utils::string_of_expression(abstract_syntax_tree);
-        std::cout << exp_str << std::endl;
+        std::cout << exp_str << "\n";
     }
+    std::cout << DELIMITER << "\n";
 }
 
 
@@ -28,31 +38,49 @@ int main(int argc, char *argv[]) {
         std::cerr << "Usage: " << argv[0] << " <filename>\n";
         return 1;
     }
-    
-    std::string filename = argv[1];
-    bool output_lexer = argc >= 3 && strcmp(argv[2], "--output-lexer") == 0;
-    bool output_parser = argc >= 4 && strcmp(argv[3], "--output-parser") == 0;
 
+    // set flags based on executable args
+    for (int i = 2; i < argc; i++) {
+        std::string arg_str(argv[i]);
+        if (flags.find(arg_str) == flags.end()) {
+            std::cerr << "Unkown flag: " << argv[i] << "\n";
+            return 1;
+        }
+
+        flags[arg_str] = true;
+    } 
+
+    // Convert text file into string 
+    std::string filename = argv[1];
     std::string buffer = utils::read_file_into_buffer(argv[1]);
 
+    // Convert buffer string into lexical tokens
     Lexer lex(buffer);
     std::vector<Token> tokens = lex.generate_tokens();
+    if (flags["--output-lexer"]) print_lexer_output(tokens);
 
-    if (output_lexer) {
-        print_lexer_output(tokens);
-        std::cout << DELIMITER << std::endl;
-    }
-
+    // convert lexical tokens into tree
     Parser np(tokens);
     std::vector<Expression*> expressions = np.parse_top_level_expressions();
+    if (flags["--output-parser"]) print_parser_output(expressions);
+    
+    if (flags["--tree-evaluate"]) {
+        // use TreeEvaluator
+        TreeEvaluator evaluator;
+        evaluator.evaluate_commands(expressions);
+    } else {
+        // use RV VM
+        IRGenerator gen;
+        std::vector<Instruction> instr = gen.generate_ir_code(expressions);
+        
+        if (flags["--output-ir"]) {
+            gen.print_instructions();
+            std::cout << DELIMITER << "\n";
+        }
 
-    if (output_parser) {
-        print_parser_output(expressions);
-        std::cout << DELIMITER << std::endl;
+        Interpreter interpreter(gen);
+        interpreter.execute();
     }
-
-    Evaluator evaluator;
-    evaluator.evaluate_commands(expressions);
     
     utils::cleanup_expressions(expressions);
 }

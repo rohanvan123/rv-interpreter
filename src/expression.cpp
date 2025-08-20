@@ -1,6 +1,8 @@
 #include "expression.hpp"
 #include "utils.hpp"
 
+#include <sstream>
+
 // Blue print for overriding evaluate functions
 
 Value MonadicExpression::evaluate(Environment& env) const {

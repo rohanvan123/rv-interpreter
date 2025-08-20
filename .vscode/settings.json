@@ -75,7 +75,9 @@
     "memory_resource": "cpp",
     "utility": "cpp",
     "__verbose_abort": "cpp",
-    "bit": "cpp"
+    "bit": "cpp",
+    "format": "cpp",
+    "queue": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

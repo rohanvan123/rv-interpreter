@@ -7,4 +7,4 @@ COPY . .
 
 RUN make
 
-CMD ["valgrind", "--leak-check=full", "--show-leak-kinds=all", "./bin/test", "./test_code/complex_list.rv", "--output-lexer", "output-parser"]
+CMD ["valgrind", "--leak-check=full", "--show-leak-kinds=all", "./bin/test", "./test_code/complex_function.rv", "--output-lexer", "--output-parser", "--output-ir"]

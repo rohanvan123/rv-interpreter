@@ -2,7 +2,6 @@
 #include "builtins.hpp"
 #include "utils.hpp"
 
-#include <format>
 #include <iostream>
 
 // const int PC_REG = -1; // PC id

@@ -182,6 +182,8 @@ int IRGenerator::gen_mon_exp_ir(MonadicExpression* mon_exp) {
             return curr_reg++;
         }
     };
+
+    throw std::runtime_error("Unknown mon op");
 }
 
 int IRGenerator::gen_bin_exp_ir(BinaryExpression* bin_exp) {

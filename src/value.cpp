@@ -1,6 +1,8 @@
 #include "value.hpp"
 #include "utils.hpp"
 
+#include <cmath>
+
 std::string Value::string_of_list(std::vector<Value> arr, bool string_quotes) const {
     std::ostringstream oss;
     oss << "[";
@@ -230,11 +232,11 @@ Value Value::operator[](const Value& idx_val) const {
 
     if (is_string()) {
         std::string s = std::get<std::string>(data);
-        if (idx < 0 || idx >= s.size()) throw std::runtime_error("idx out of bounds for string[]");
+        if (idx < 0 || idx >= static_cast<int>(s.size())) throw std::runtime_error("idx out of bounds for string[]");
         return Value(std::string(1, s[idx]));
     } else if (is_list()) {
         std::vector<Value> arr = std::get<std::vector<Value>>(data);
-        if (idx < 0 || idx >= arr.size()) throw std::runtime_error("idx out of bounds for list[]");
+        if (idx < 0 || idx >= static_cast<int>(arr.size())) throw std::runtime_error("idx out of bounds for list[]");
         return Value(arr[idx]);
     }
 
@@ -248,14 +250,14 @@ Value Value::modify_arr(const Value& idx_val, Value replace_val) {
     if (is_string() && replace_val.is_string()) {
         std::string s(std::get<std::string>(data));
         std::string c = (std::get<std::string>(replace_val.data));
-        if (idx < 0 || idx >= s.size()) throw std::runtime_error("idx out of bounds for string[]");
+        if (idx < 0 || idx >= static_cast<int>(s.size())) throw std::runtime_error("idx out of bounds for string[]");
         if (c.size() != 1) throw std::runtime_error("value for string[i] = x is not a single char");
 
         s[idx] = c[0];
         return Value(s);
     } else if (is_list()) {
         std::vector<Value> arr(std::get<std::vector<Value>>(data));
-        if (idx < 0 || idx >= arr.size()) throw std::runtime_error("idx out of bounds for list[]");
+        if (idx < 0 || idx >= static_cast<int>(arr.size())) throw std::runtime_error("idx out of bounds for list[]");
 
         arr[idx] = replace_val;
         return Value(arr);

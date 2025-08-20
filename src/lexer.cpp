@@ -14,7 +14,7 @@ const std::map<char, TokenType> Lexer::single_chars = {
     {',', COMMA},
     {'$', END_BLOCK},
     {'[', LBRACKET},
-    {']', RBRACKET}
+    {']', RBRACKET},
 };
 
 const std::map<std::string, TokenType> Lexer::keyword_tokens = {
@@ -22,9 +22,10 @@ const std::map<std::string, TokenType> Lexer::keyword_tokens = {
     {">", GT},
     {"=", EQUALS},
     {"+", PLUS},
-    {"*", TIMES},
     {"-", MINUS},
+    {"*", TIMES},
     {"/", DIVIDES},
+    {"!", NOT},
     {"%", MOD},
     {"let", LET},
     {"while", WHILE},
@@ -96,6 +97,8 @@ std::vector<Token> Lexer::generate_tokens() {
             static const std::regex integer_regex("[0-9]+");
             static const std::regex neg_integer_regex("-[0-9]+");
             static const std::regex identifier_regex("[a-z][a-zA-Z0-9_]*");
+            static const std::regex neg_identifier_regex("-[a-z][a-zA-Z0-9_]*");
+            static const std::regex negate_identifier_regex("![a-z][a-zA-Z0-9_]*");
             
             if (keyword_tokens.find(curr_string) != keyword_tokens.end()) { 
                 Token new_token = Token(keyword_tokens.at(curr_string), curr_string, line);
@@ -113,6 +116,16 @@ std::vector<Token> Lexer::generate_tokens() {
 
             } else if (std::regex_match(curr_string, identifier_regex)) {
                 Token new_token = Token(IDENTIFIER, curr_string, line);
+                tokens.push_back(new_token);
+            } else if (std::regex_match(curr_string, neg_identifier_regex)) {
+                Token neg_token = Token(MINUS, "-", line);
+                Token new_token = Token(IDENTIFIER, curr_string.substr(1), line);
+                tokens.push_back(neg_token);
+                tokens.push_back(new_token);
+            } else if (std::regex_match(curr_string, negate_identifier_regex)) {
+                Token negate_token = Token(NOT, "!", line);
+                Token new_token = Token(IDENTIFIER, curr_string.substr(1), line);
+                tokens.push_back(negate_token);
                 tokens.push_back(new_token);
             }
                 

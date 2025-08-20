@@ -135,6 +135,7 @@ int IRGenerator::gen_let_exp_ir(AssignmentExpression* let_exp) {
         _ident_table.push_back(var_name);
         ident_to_idx[var_name] = ident_idx;
     } else {
+        if (ident_to_idx.find(var_name) == ident_to_idx.end()) throw std::runtime_error("Variable " + var_name + " has not been properly declared");
         ident_idx = ident_to_idx[var_name];
     }
 
@@ -250,7 +251,6 @@ int IRGenerator::store_func_assign_exp(FunctionAssignmentExpression* func_exp) {
 }
 
 int IRGenerator::gen_func_assign_exp_ir(FunctionInfo& func_info) {
-    
     FunctionAssignmentExpression* func_exp = func_info.func_exp;
     func_info.start_addr = _instr.size();
     addr_to_ident[func_info.start_addr] = func_info.name;
@@ -466,6 +466,7 @@ void IRGenerator::print_instruction(Instruction inst) const {
         case (GTE_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2 << " R" << inst.arg3; break;
         case (AND_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2 << " R" << inst.arg3; break;
         case (OR_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2 << " R" << inst.arg3; break;
+        case (NOT_OP): std::cout << "R" << inst.arg1 << " R" << inst.arg2; break; 
 
         case (STORE_VAR_OP): {
             // std::cout << "DEBUG " << inst.arg1 << " " << _ident_table[inst.arg1] << "\n";

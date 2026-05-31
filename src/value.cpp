@@ -174,7 +174,7 @@ bool Value::equals(const Value& rhs) const {
 
         if (v1.size() != v2.size()) return false;
         for (size_t i = 0; i < v1.size(); i++) {
-            if (v1[1].not_equals(v2[i])) return false;
+            if (v1[i].not_equals(v2[i])) return false;
         }
         return true;
     }

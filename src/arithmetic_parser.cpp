@@ -82,7 +82,7 @@ Expression * ArithmeticParser::comparison() {
             case GT: left = new BinaryExpression(BinaryOperator::GtOp, left, right); break;
             case GEQ: left =  new BinaryExpression(BinaryOperator::GteOp, left, right); break;
             case LT: left =  new BinaryExpression(BinaryOperator::LtOp, left, right); break;
-            case LEQ: left = new BinaryExpression(BinaryOperator::GteOp, left, right); break;
+            case LEQ: left = new BinaryExpression(BinaryOperator::LteOp, left, right); break;
             case NEQ: left = new BinaryExpression(BinaryOperator::NotEqualsOp, left, right); break;
             case EQUALITY: left = new BinaryExpression(BinaryOperator::EqualityOp, left, right); break;
             default: return nullptr;

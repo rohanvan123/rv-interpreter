@@ -38,6 +38,7 @@ const std::map<std::string, TokenType> Lexer::keyword_tokens = {
     {"^", POW},
     {"%=", MOD_EQUALS},
     {">=", GEQ},
+    {"<=", LEQ},
     {"!=", NEQ},
     {"==", EQUALITY},
     {"&&", AND},
